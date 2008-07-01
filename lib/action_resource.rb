@@ -1,0 +1,7 @@
+require 'action_resource/core_extensions/exception'
+require 'action_resource/dispatch'
+require 'action_resource/query'
+require 'action_resource/render'
+require 'action_resource/retrieve'
+require 'action_resource/version'
+require 'action_resource/base'
