@@ -1,13 +1,21 @@
 ActionResource
 ==============
 
-Introduction goes here.
+ActionResource is a subclass of ActionController intended to provide a 
+comprehensive resource modelling and querying framework.  It automatically
+sets up ActiveRecord querying based on controller name and establishes an
+API for tweaking the behavior of a resource at a high level.  It's similar
+to resource_this but more opinionated and eventually more comprehensive.
 
+Methods may be easily overwritten in subclasses at any pain point to provide
+custom behaviors for renders and CRUD behavior.
 
 Example
 =======
 
-Example goes here.
+class Users
+  queryable_with :address_id, :first_name, :last_name
+  nests :addresses
+end
 
-
-Copyright (c) 2008 [name of plugin creator], released under the MIT license
+Copyright (c) 2008 Brian Guthrie, released under the MIT license
