@@ -6,6 +6,14 @@ module ActionResource
     def model_class; self.class.model_class; end
 
     class << self
+      def all_resources
+        ActionController::Routing.possible_controllers.map do |possible_controller|
+          "#{possible_controller}_controller".classify.constantize
+        end.select do |controller_class|
+          controller_class.ancestors.include?(self)
+        end
+      end
+      
       def inherited(base)
         super(base)
         base.send :extend, ClassMethods
@@ -43,6 +51,13 @@ module ActionResource
     def nests(controller_name, opts={})
       nesting_id = "#{model_name}_id" || opts[:foreign_key]
       "#{controller_name}_controller".classify.constantize.queryable_params << nesting_id
+    end
+    
+    def to_xml(opts={})
+      {
+        :name       => self.model_name,
+        :parameters => self.queryable_params.map { |p| { :name => p.to_s } }
+      }.to_xml(opts.merge(:root => "resource"))
     end
   end
 end

@@ -35,4 +35,25 @@ describe ActionResource::Base, :type => :controller do
   
   it "nests itself within another controller"
   it "disables sessions if the request format is XML or JSON"
+  
+  class NonResourcesController < ActionController::Base; end
+  class ResourcesController    < ActionResource::Base; end
+  
+  ActionController::Routing::Routes.draw do |map|
+    map.resources :resources
+    map.resources :non_resources
+  end
+  
+  it "knows about all controller subclasses of itself" do
+    ActionController::Routing.stubs(:possible_controllers).returns %w{resources non_resources}
+    ActionResource::Base.all_resources.should include(ResourcesController)
+    ActionResource::Base.all_resources.should_not include(NonResourcesController)
+  end
+  
+  it "serializes the notion of a resource controller as XML" do
+    UsersController.queryable_with :first_name
+    xml = Hash.from_xml(UsersController.to_xml)
+    xml["resource"]["name"].should == "user"
+    xml["resource"]["parameters"].first["name"].should == "first_name"
+  end
 end
