@@ -36,13 +36,13 @@ describe "ActionResource::Query", :type => :controller do
     assigns(:users).should be_empty
   end
   
-  it "retrieves objects based on multiple queried conditions" do
+  it "queries on the intersection of multiple conditions" do
     controller.class.queryable_with :address_id, :income
     get :index, :address_id => 1, :income => 70_000
     assigns(:users).should == [ users[0] ]
   end
   
-  it "retrieves objects based on lists of queried conditions" do
+  it "queries multiple values in a comma-separated list" do
     controller.class.queryable_with :address_id, :income
     get :index, :address_id => "1,2"
     assigns(:users).should include(*users)

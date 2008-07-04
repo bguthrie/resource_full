@@ -1,10 +1,10 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-describe ActionResource::Dispatch, :type => :controller do
+describe "ActionResource::Dispatch", :type => :controller do
   controller_name "mocks"
   
   before(:each) do
-    Mock.stubs(:find).returns(:id => 1)
+    Mock.stubs(:find).returns stub(:id => 1)
     MocksController.responds_to :html, :xml
   end
   
@@ -86,9 +86,9 @@ describe ActionResource::Dispatch, :type => :controller do
     controller_name :mocks
     
     it "sets a @mock instance variable based on the default updater" do
-      Mock.stubs(:update).returns stub(:valid? => true, :id => :mock)
+      Mock.stubs(:find).returns stub(:id => 1, :update_attributes => true, :valid? => true)
       put :update, :id => 1
-      assigns(:mock).id.should == :mock
+      assigns(:mock).id.should == 1
     end
     
     it "sets a @mock instance variable appropriately if the default updater is overridden" do

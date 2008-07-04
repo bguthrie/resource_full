@@ -4,14 +4,13 @@ module ActionResource
       def included(base)
         super(base)
         # Define new_person, update_person, etc.
-        base.class_eval do
-          alias_method "new_#{base.model_name}",                :new_model_object
-          alias_method "find_#{base.model_name}",               :find_model_object
-          alias_method "create_#{base.model_name}",             :create_model_object
-          alias_method "update_#{base.model_name}",             :update_model_object
-          alias_method "destroy_#{base.model_name}",            :destroy_model_object
-          alias_method "find_all_#{base.model_name.pluralize}", :find_all_model_objects
-        end
+        base.send(:alias_method, "new_#{base.model_name}",                :new_model_object)
+        base.send(:alias_method, "find_#{base.model_name}",               :find_model_object)
+        base.send(:alias_method, "create_#{base.model_name}",             :create_model_object)
+        base.send(:alias_method, "update_#{base.model_name}",             :update_model_object)
+        base.send(:alias_method, "destroy_#{base.model_name}",            :destroy_model_object)
+        base.send(:alias_method, "find_all_#{base.model_name.pluralize}", :find_all_model_objects)
+        base.before_filter :move_queryable_params_into_model_params_on_create, :only => [:create]
       end
     end
     
@@ -32,7 +31,9 @@ module ActionResource
     end
     
     def update_model_object
-      model_class.update(params[:id], params[model_name])
+      returning(find_model_object) do |object|
+        object.update_attributes params[model_name]
+      end
     end
     
     def create_model_object
@@ -40,7 +41,7 @@ module ActionResource
     end
     
     def destroy_model_object
-      model_class.destroy(params[:id])
+      model_class.destroy_all(self.class.resource_identifier => params[:id])
     end
   
     def find_all_model_objects(reload=false)
@@ -51,6 +52,14 @@ module ActionResource
       returning(opts = find_options) do
         opts.merge!(:conditions => queried_conditions) unless queried_conditions.empty?
       end
-    end 
+    end
+    
+    def move_queryable_params_into_model_params_on_create
+      params.except(model_name).each do |param_name, value|
+        if self.class.queryable_params.include?(param_name.to_sym)
+          params[model_name][param_name] = params.delete(param_name)
+        end
+      end
+    end
   end
 end
