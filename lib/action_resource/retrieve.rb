@@ -24,7 +24,7 @@ module ActionResource
     protected
     
     def find_model_object
-      model_class.find(params[:id])
+      model_class.find(:first, :conditions => { self.class.resource_identifier => params[:id]})
     end
   
     def new_model_object

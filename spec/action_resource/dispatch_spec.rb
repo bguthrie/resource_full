@@ -3,7 +3,10 @@ require File.dirname(__FILE__) + '/../spec_helper'
 describe ActionResource::Dispatch, :type => :controller do
   controller_name "mocks"
   
-  before(:each) { Mock.stubs(:find).returns(:id => 1) }
+  before(:each) do
+    Mock.stubs(:find).returns(:id => 1)
+    MocksController.responds_to :html, :xml
+  end
   
   it "defines methods based on the five core REST methods" do
     controller.methods.should include("index", "create", "update", "show", "destroy")
@@ -12,13 +15,11 @@ describe ActionResource::Dispatch, :type => :controller do
   it "dispatches to index_xml render method if xml is requested" do
     controller.expects(:index_xml)
     get :index, :format => 'xml'
-    response.code.should == '200'
   end
   
   it "dispatches to index_html render method if html is requested" do  
     controller.expects(:index_html)
     get :index, :format => 'html'
-    response.code.should == '200'
   end
   
   it "raises a 406 error if it does not respond to a particular format" do
@@ -98,6 +99,5 @@ describe ActionResource::Dispatch, :type => :controller do
       put :update, :id => 1
       assigns(:mock).id.should == :super_mock
     end
-  end
-  
+  end  
 end

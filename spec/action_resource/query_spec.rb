@@ -14,6 +14,7 @@ describe "ActionResource::Query", :type => :controller do
   attr_reader :users
   
   it "isn't queryable on any parameters by default" do
+    UsersController.queryable_with
     controller.class.queryable_params.should be_empty
   end
   

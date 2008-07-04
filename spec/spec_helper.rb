@@ -22,6 +22,13 @@ end
 class Mock # To emulate ActiveRecord.
 end
 
+# TODO Remove this or find a better way to handle ActiveRecord dependencies.
+class UsersController < ActionResource::Base
+end
+
+class User < ActiveRecord::Base
+end
+
 def putsh(stuff); puts ERB::Util.h(stuff); end
 
 ActionController::Routing::Routes.draw do |map|

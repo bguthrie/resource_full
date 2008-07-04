@@ -16,11 +16,13 @@ describe ActionResource::Base, :type => :controller do
   it "exposes a particular resource model given a symbol" do
     controller.class.exposes(:fake)
     controller.model_class.should == Fake
+    controller.class.exposes :mock # cleanup
   end
   
   it "exposes a particular resource model given a class" do
     controller.class.exposes Fake
     controller.model_class.should == Fake
+    controller.class.exposes Mock # cleanup
   end
   
   it "renders two formats by default" do
@@ -35,17 +37,13 @@ describe ActionResource::Base, :type => :controller do
   
   it "nests itself within another controller"
   it "disables sessions if the request format is XML or JSON"
+  it "plays nicely with subclasses and attributes"
   
   class NonResourcesController < ActionController::Base; end
   class ResourcesController    < ActionResource::Base; end
   
-  ActionController::Routing::Routes.draw do |map|
-    map.resources :resources
-    map.resources :non_resources
-  end
-  
   it "knows about all controller subclasses of itself" do
-    ActionController::Routing.stubs(:possible_controllers).returns %w{resources non_resources}
+    ActionController::Routing.expects(:possible_controllers).at_least_once.returns %w{resources non_resources}
     ActionResource::Base.all_resources.should include(ResourcesController)
     ActionResource::Base.all_resources.should_not include(NonResourcesController)
   end
@@ -55,5 +53,15 @@ describe ActionResource::Base, :type => :controller do
     xml = Hash.from_xml(UsersController.to_xml)
     xml["resource"]["name"].should == "user"
     xml["resource"]["parameters"].first["name"].should == "first_name"
+  end
+  
+  it "has a default value of :id for the resource identifier column" do
+    UsersController.resource_identifier.should == :id
+  end
+  
+  it "allows you to set the resource_identifier field" do
+    UsersController.resource_identifier = :first_name
+    UsersController.resource_identifier.should == :first_name
+    UsersController.resource_identifier = :id    
   end
 end

@@ -14,19 +14,21 @@ module ActionResource
         end
       end
       
-      def inherited(base)
-        super(base)
-        base.send :extend, ClassMethods
-        base.send :include, 
+      def inherited(controller)
+        super(controller)
+        controller.send :extend, ClassMethods
+        controller.send :include, 
           ActionResource::Retrieve, 
           ActionResource::Query, 
           ActionResource::Dispatch, 
           ActionResource::Render
-      end
+        end
     end
   end
 
   module ClassMethods
+    attr_accessor_with_default :resource_identifier, :id
+    
     def model_name
       @model_class ? @model_class.to_s.underscore : self.controller_name.singularize
     end
