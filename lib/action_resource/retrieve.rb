@@ -56,7 +56,7 @@ module ActionResource
     
     def move_queryable_params_into_model_params_on_create
       params.except(model_name).each do |param_name, value|
-        if self.class.queryable_params.include?(param_name.to_sym)
+        if self.class.queryable_params.collect(&:name).include?(param_name.to_sym)
           params[model_name][param_name] = params.delete(param_name)
         end
       end
