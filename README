@@ -13,8 +13,11 @@ custom behaviors for renders and CRUD behavior.
 Example
 =======
 
-class Users
+class UsersController < ActionResource::Base
+  self.resource_identifier = :email_address
+
   queryable_with :address_id, :first_name, :last_name
+  queryable_with :email_address, :fuzzy => true
   nests :addresses
 end
 
