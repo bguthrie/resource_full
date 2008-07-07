@@ -1,27 +1,22 @@
 module ActionResource
   module Dispatch
     def show
-      self.model_object = send("find_#{model_name}")
       dispatch_to :show
     end
     
     def index
-      self.model_objects = send("find_all_#{model_name.pluralize}")
       dispatch_to :index
     end
     
     def create
-      self.model_object = send("create_#{model_name}")
       dispatch_to :create
     end
     
     def update
-      self.model_object = send("update_#{model_name}")
       dispatch_to :update
     end
     
     def destroy
-      self.model_object = send("destroy_#{model_name}")
       dispatch_to :destroy
     end
     

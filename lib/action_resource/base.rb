@@ -39,7 +39,7 @@ module ActionResource
 
     # Indicates that the CRUD methods should be called on the given class.
     def exposes(model_class)
-      @model_class = model_class.to_s.camelize.constantize
+      @model_class = model_class.to_s.singularize.camelize.constantize
     end
 
     def responds_to(*formats)

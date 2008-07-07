@@ -34,4 +34,5 @@ def putsh(stuff); puts ERB::Util.h(stuff); end
 ActionController::Routing::Routes.draw do |map|
   map.resources :mocks
   map.resources :users
+  map.resources :overridable_mocks
 end

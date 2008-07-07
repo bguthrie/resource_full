@@ -61,6 +61,4 @@ describe "ActionResource::Query", :type => :controller do
     assigns(:users).should_not include(users[1])
   end
   
-  it "inherits queryable settings from its superclass"
-  
 end

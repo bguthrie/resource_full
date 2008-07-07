@@ -1,11 +1,15 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
+class OverridableMocksController < ApplicationController
+  exposes :mocks
+end
+
 describe "ActionResource::Dispatch", :type => :controller do
-  controller_name "mocks"
+  controller_name :overridable_mocks
   
   before(:each) do
     Mock.stubs(:find).returns stub(:id => 1)
-    MocksController.responds_to :html, :xml
+    OverridableMocksController.responds_to :html, :xml
   end
   
   it "defines methods based on the five core REST methods" do
@@ -28,7 +32,7 @@ describe "ActionResource::Dispatch", :type => :controller do
   end
   
   describe "GET index" do
-    controller_name :mocks
+    controller_name :overridable_mocks
     
     it "sets an @mocks instance variable based on the default finder" do
       Mock.stubs(:find).returns "a list of mocks"
@@ -37,7 +41,7 @@ describe "ActionResource::Dispatch", :type => :controller do
     end
     
     it "sets an @mocks instance variable appropriately if the default finder is overridden" do
-      MocksController.class_eval do
+      controller.class.class_eval do
         def find_all_mocks; "another list of mocks"; end
       end      
       get :index
@@ -46,7 +50,7 @@ describe "ActionResource::Dispatch", :type => :controller do
   end
   
   describe "GET show" do
-    controller_name :mocks
+    controller_name :overridable_mocks
     
     it "sets a @mock instance variable based on the default finder" do
       Mock.stubs(:find).returns "a mock"
@@ -55,7 +59,7 @@ describe "ActionResource::Dispatch", :type => :controller do
     end
     
     it "sets a @mock instance variable appropriately if the default finder is overridden" do
-      MocksController.class_eval do
+      controller.class.class_eval do
         def find_mock; "another mock"; end
       end
       get :show, :id => 1
@@ -64,7 +68,7 @@ describe "ActionResource::Dispatch", :type => :controller do
   end
   
   describe "POST create" do
-    controller_name :mocks
+    controller_name :overridable_mocks
     
     it "sets a @mock instance variable based on the default creator" do
       Mock.stubs(:create).returns stub(:valid? => true, :id => :mock)
@@ -74,7 +78,7 @@ describe "ActionResource::Dispatch", :type => :controller do
     
     it "sets a @mock instance variable appropriately if the default creator is overridden" do
       Mock.stubs(:super_create).returns stub(:valid? => true, :id => :super_mock)
-      MocksController.class_eval do
+      controller.class.class_eval do
         def create_mock; Mock.super_create; end
       end
       post :create
@@ -83,7 +87,7 @@ describe "ActionResource::Dispatch", :type => :controller do
   end
   
   describe "PUT update" do
-    controller_name :mocks
+    controller_name :overridable_mocks
     
     it "sets a @mock instance variable based on the default updater" do
       Mock.stubs(:find).returns stub(:id => 1, :update_attributes => true, :valid? => true)
@@ -93,7 +97,7 @@ describe "ActionResource::Dispatch", :type => :controller do
     
     it "sets a @mock instance variable appropriately if the default updater is overridden" do
       Mock.stubs(:super_update).returns stub(:valid? => true, :id => :super_mock)
-      MocksController.class_eval do
+      controller.class.class_eval do
         def update_mock; Mock.super_update; end
       end
       put :update, :id => 1

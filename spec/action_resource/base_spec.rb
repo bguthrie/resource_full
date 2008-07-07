@@ -14,7 +14,13 @@ describe ActionResource::Base, :type => :controller do
   class Fake; end
   
   it "exposes a particular resource model given a symbol" do
-    controller.class.exposes(:fake)
+    controller.class.exposes :fake
+    controller.model_class.should == Fake
+    controller.class.exposes :mock # cleanup
+  end
+  
+  it "exposes a particular resource model given a pluralized symbol" do
+    controller.class.exposes :fakes
     controller.model_class.should == Fake
     controller.class.exposes :mock # cleanup
   end
