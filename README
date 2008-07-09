@@ -2,10 +2,12 @@ ActionResource
 ==============
 
 ActionResource is a subclass of ActionController intended to provide a 
-comprehensive resource modelling and querying framework.  It automatically
-sets up ActiveRecord querying based on controller name and establishes an
-API for tweaking the behavior of a resource at a high level.  It's similar
-to resource_this but more opinionated and eventually more comprehensive.
+comprehensive resource modeling and querying framework.  It allows for
+abstracted handling of queryable parameters, a separation of controller
+concerns into multiple submethods, handling of respondable formats,
+and XML serialization of the actual notion of a resource itself for
+metadata handling purposes.  It's similar to resource_this, but more 
+opinionated and eventually more comprehensive.
 
 Methods may be easily overwritten in subclasses at any pain point to provide
 custom behaviors for renders and CRUD behavior.
@@ -13,12 +15,23 @@ custom behaviors for renders and CRUD behavior.
 Example
 =======
 
-class UsersController < ActionResource::Base
-  self.resource_identifier = :email_address
+  class UsersController < ActionResource::Base
+    self.resource_identifier = :username
 
-  queryable_with :address_id, :first_name, :last_name
-  queryable_with :email_address, :fuzzy => true
-  nests :addresses
-end
+    queryable_with :address_id, :first_name, :last_name
+    queryable_with :email_address, :fuzzy => true
+    nests :addresses
+    responds_to :html, :xml
+  end
+
+This allows for the following:
+
+  /users/bguthrie
+  /users?email_address=gmail
+  /users.xml?address_id=1&first_name=Brian
+  /users/bguthrie/addresses
+
+  >> UsersController.to_xml
+  => "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<resource>\n  <parameters type=\"array\"/>..."
 
 Copyright (c) 2008 Brian Guthrie, released under the MIT license
