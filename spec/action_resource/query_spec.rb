@@ -95,7 +95,23 @@ describe "ActionResource::Query", :type => :controller do
   describe "with joins" do
     controller_name :addresses
     
-    it "filters addresses by the User resource identifier if a :from relationship is defined" do
+    it "filters addresses by the appropriate column and join if a :from relationship is defined" do
+      User.delete_all
+      Address.delete_all
+      
+      user = User.create! :email => "gthreepwood@melee.gov"
+      address_1 = user.addresses.create!
+      address_2 = user.addresses.create!
+      address_3 = Address.create!
+      
+      AddressesController.queryable_with :email, :from => :user
+      
+      get :index, :user_id => user.email
+      assigns(:addresses).should include(address_1, address_2)
+      assigns(:addresses).should_not include(address_3)
+    end
+    
+    it "filters addresses by the User resource identifier if a :from is specified along with :resource_identifier" do
       User.delete_all
       Address.delete_all
       
@@ -105,12 +121,12 @@ describe "ActionResource::Query", :type => :controller do
       address_3 = Address.create!
       
       UsersController.resource_identifier = :email
-      AddressesController.queryable_with :user_id, :from => :user
+      AddressesController.queryable_with :user_id, :from => :user, :resource_identifier => true
       
       get :index, :user_id => user.email
       assigns(:addresses).should include(address_1, address_2)
       assigns(:addresses).should_not include(address_3)
-    end
+    end    
   end
   
 end

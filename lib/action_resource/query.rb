@@ -12,14 +12,7 @@ module ActionResource
     module ClassMethods
       def queryable_with(*args)
         opts = args.last.is_a?(Hash) ? args.pop : {}
-        if opts[:from]
-          self.joins << opts[:from] 
-          opts[:column] = "#{opts[:from].to_s.pluralize}_controller".classify.constantize.resource_identifier
-          opts[:table]  = opts[:from].to_s.classify.constantize.table_name
-        else
-          opts[:table] = self.model_class.table_name
-        end
-        self.queryable_params = args.collect {|param| QueryParameter.new(param, opts.dup)}
+        self.queryable_params = args.collect {|param| QueryParameter.new(param, self, opts.dup)}
       end
       
       def joins
@@ -49,13 +42,23 @@ module ActionResource
       attr_reader :name, :fuzzy, :columns, :table
       alias_method :fuzzy?, :fuzzy
     
-      def initialize(name, opts={})
+      def initialize(name, resource, opts={})
+        if opts[:from]
+          resource.joins << opts[:from]
+          begin
+            target_resource = "#{opts[:from].to_s.pluralize}_controller".classify.constantize
+            opts[:column] ||= target_resource.resource_identifier if opts[:resource_identifier]
+            @table = target_resource.model_class.table_name
+          rescue NameError
+            @table = opts[:from].to_s.singularize.classify.constantize.table_name
+          end
+        else
+          @table = resource.model_class.table_name
+        end
         
         @name    = name
-        @fuzzy   = opts[:fuzzy]
-        @table   = opts[:table]
-        
         opts[:column] ||= name
+        @fuzzy   = opts[:fuzzy]
         @columns = opts[:columns] || [ opts[:column] ]
       end
       
