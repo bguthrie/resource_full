@@ -88,7 +88,7 @@ module ActionResource
         if request.format.xml?
           render :xml => exception.to_xml
         else
-          rescue_action_with_handler(exception)
+          raise exception
         end
       end
   

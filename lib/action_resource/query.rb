@@ -10,7 +10,7 @@ module ActionResource
     module ClassMethods
       def queryable_with(*args)
         opts = args.last.is_a?(Hash) ? args.pop : {}
-        self.queryable_params = args.collect {|param| QueryParameter.new(param, opts)}
+        self.queryable_params = args.collect {|param| QueryParameter.new(param, opts.dup)}
       end
       
       def queryable_params
@@ -27,29 +27,31 @@ module ActionResource
         query_param.conditions_for(params)
       end.reject(&:empty?)
       
-      merged_strings = query_arrays.collect(&:shift).join(') AND (')
-      merged_strings = "(#{merged_strings})"
+      merged_strings = query_arrays.collect {|ary| "(#{ary.shift})"}.join(' AND ')
       
       [ merged_strings ] + query_arrays.sum([])
     end
     
     class QueryParameter
-      attr_reader :name
-      
+      attr_reader :name, :fuzzy, :columns
+      alias_method :fuzzy?, :fuzzy
+    
       def initialize(name, opts={})
-        @name  = name
-        @fuzzy = opts[:fuzzy]
+        
+        @name    = name
+        @fuzzy   = opts[:fuzzy]
+        
+        opts[:column] ||= name
+        @columns = opts[:columns] || [ opts[:column] ]
       end
-      
-      def column; @name; end
-      
-      def fuzzy?; @fuzzy; end
       
       def conditions_for(params)
         values = param_values_for(params)
         unless values.empty?
-          final_query_string = returning([]) {|ary| values.size.times { ary << query_string}}.join(") OR (")
-          [ final_query_string ] + values
+          final_query_string = Array.new(values.size, query_string).join(" OR ")
+          final_values       = values.sum([]) { |value| Array.new(columns.size, value) }
+          
+          [ final_query_string ] + final_values
         else [] end
       end
       
@@ -62,11 +64,13 @@ module ActionResource
         end
       
         def query_string
-          if fuzzy?
-            "#{column} LIKE ?"
-          else
-            "#{column} = ?"
-          end
+          columns.collect do |column|
+            if fuzzy?
+              "(#{column} LIKE ?)"
+            else
+              "(#{column} = ?)"
+            end
+          end.join(" OR ")
         end
       
     end

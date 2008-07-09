@@ -61,4 +61,35 @@ describe "ActionResource::Query", :type => :controller do
     assigns(:users).should_not include(users[1])
   end
   
+  it "allows a queryable parameter to map to a different column" do
+    controller.class.queryable_with :address, :column => :address_id
+    get :index, :address => 1
+    assigns(:users).should include(users[0], users[1])
+    assigns(:users).should_not include(users[2])
+  end
+  
+  it "allows a queryable parameter to map to multiple columns" do
+    User.delete_all
+    user_1 = User.create! :first_name => "guybrush", :last_name => "threepwood"
+    user_2 = User.create! :first_name => "herman",   :last_name => "guybrush"
+    user_3 = User.create! :first_name => "ghost_pirate", :last_name => "le_chuck"
+    
+    controller.class.queryable_with :name, :columns => [:first_name, :last_name]
+    get :index, :name => "guybrush"
+    assigns(:users).should include(user_1, user_2)
+    assigns(:users).should_not include(user_3)
+  end
+  
+  it "queries fuzzy values across multiple columns" do
+    User.delete_all
+    user_1 = User.create! :first_name => "guybrush", :last_name => "threepwood"
+    user_2 = User.create! :first_name => "brian",   :last_name => "guthrie"
+    user_3 = User.create! :first_name => "ghost_pirate", :last_name => "le_chuck"
+    
+    controller.class.queryable_with :name, :columns => [:first_name, :last_name], :fuzzy => true
+    get :index, :name => "gu"
+    assigns(:users).should include(user_1, user_2)
+    assigns(:users).should_not include(user_3)
+  end
+  
 end
