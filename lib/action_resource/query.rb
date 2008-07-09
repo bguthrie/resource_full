@@ -12,7 +12,7 @@ module ActionResource
     module ClassMethods
       def queryable_with(*args)
         opts = args.last.is_a?(Hash) ? args.pop : {}
-        self.queryable_params = args.collect {|param| QueryParameter.new(param, self, opts.dup)}
+        self.queryable_params += args.collect {|param| QueryParameter.new(param, self, opts.dup)}
       end
       
       def joins

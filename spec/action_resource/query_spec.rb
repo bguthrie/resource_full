@@ -13,8 +13,11 @@ describe "ActionResource::Query", :type => :controller do
   end
   attr_reader :users
   
+  before :each do
+    UsersController.queryable_params = []
+  end
+  
   it "isn't queryable on any parameters by default" do
-    UsersController.queryable_with
     controller.class.queryable_params.should be_empty
   end
   
@@ -68,28 +71,45 @@ describe "ActionResource::Query", :type => :controller do
     assigns(:users).should_not include(users[2])
   end
   
-  it "allows a queryable parameter to map to multiple columns" do
-    User.delete_all
-    user_1 = User.create! :first_name => "guybrush", :last_name => "threepwood"
-    user_2 = User.create! :first_name => "herman",   :last_name => "guybrush"
-    user_3 = User.create! :first_name => "ghost_pirate", :last_name => "le_chuck"
+  it "should append rather than replace queryable values" do
+    controller.class.queryable_with :address_id
+    controller.class.queryable_with :income
     
-    controller.class.queryable_with :name, :columns => [:first_name, :last_name]
-    get :index, :name => "guybrush"
-    assigns(:users).should include(user_1, user_2)
-    assigns(:users).should_not include(user_3)
+    get :index, :address_id => 1, :income => 70_000
+    assigns(:users).should include(users[0])
+    assigns(:users).should_not include(users[1], users[2])
   end
   
-  it "queries fuzzy values across multiple columns" do
-    User.delete_all
-    user_1 = User.create! :first_name => "guybrush", :last_name => "threepwood"
-    user_2 = User.create! :first_name => "brian",   :last_name => "guthrie"
-    user_3 = User.create! :first_name => "ghost_pirate", :last_name => "le_chuck"
+  describe "more complex queries" do
+    controller_name :users
     
-    controller.class.queryable_with :name, :columns => [:first_name, :last_name], :fuzzy => true
-    get :index, :name => "gu"
-    assigns(:users).should include(user_1, user_2)
-    assigns(:users).should_not include(user_3)
+    before :all do
+      User.delete_all
+      @users = [
+        User.create!(:first_name => "guybrush", :last_name => "threepwood"),
+        User.create!(:first_name => "herman",   :last_name => "guybrush"),
+        User.create!(:first_name => "ghost_pirate", :last_name => "le_chuck")
+      ]
+    end
+    attr_reader :users
+    
+    before :each do
+      UsersController.queryable_params = []
+    end
+  
+    it "allows a queryable parameter to map to multiple columns" do    
+      controller.class.queryable_with :name, :columns => [:first_name, :last_name]
+      get :index, :name => "guybrush"
+      assigns(:users).should include(users[0], users[1])
+      assigns(:users).should_not include(users[2])
+    end
+  
+    it "queries fuzzy values across multiple columns" do
+      controller.class.queryable_with :name, :columns => [:first_name, :last_name], :fuzzy => true
+      get :index, :name => "gu"
+      assigns(:users).should include(users[0], users[1])
+      assigns(:users).should_not include(users[2])
+    end
   end
   
   describe "with joins" do

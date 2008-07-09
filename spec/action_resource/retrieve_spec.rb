@@ -6,6 +6,7 @@ describe "ActionResource::Retrieve", :type => :controller do
   before :each do
     User.delete_all
     UsersController.resource_identifier = :id
+    UsersController.queryable_params = []
   end
   
   it "defines custom methods based on the class name" do
