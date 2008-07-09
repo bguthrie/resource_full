@@ -61,7 +61,8 @@ module ActionResource
     def to_xml(opts={})
       {
         :name       => self.model_name,
-        :parameters => self.queryable_params
+        :parameters => self.queryable_params,
+        :identifier => self.resource_identifier
       }.to_xml(opts.merge(:root => "resource"))
     end
   end
