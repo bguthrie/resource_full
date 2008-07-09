@@ -17,7 +17,7 @@ module ActionResource
     # Override this to provide custom find conditions.  This is automatically merged at query
     # time with the queried conditions extracted from params.
     def find_options
-      { :order => 'created_at DESC' }
+      { :order => "#{model_class.table_name}.created_at DESC" }
     end
     
     protected
@@ -61,6 +61,8 @@ module ActionResource
     def find_options_and_query_conditions
       returning(opts = find_options) do
         opts.merge!(:conditions => queried_conditions) unless queried_conditions.empty?
+        opts.merge!(:joins => self.class.joins) unless self.class.joins.empty?
+        opts.merge!(params.slice(:limit, :offset).symbolize_keys) if self.class.paginatable?
       end
     end
     

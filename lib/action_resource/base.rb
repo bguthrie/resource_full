@@ -22,12 +22,15 @@ module ActionResource
           ActionResource::Query, 
           ActionResource::Dispatch, 
           ActionResource::Render
-        end
+      end
     end
   end
 
   module ClassMethods
     attr_accessor_with_default :resource_identifier, :id
+    attr_accessor_with_default :paginatable, true
+    
+    def paginatable?; paginatable; end
     
     def model_name
       @model_class ? @model_class.to_s.underscore : self.controller_name.singularize

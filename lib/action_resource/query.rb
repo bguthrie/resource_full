@@ -2,15 +2,28 @@ module ActionResource
   module Query
     QUERY_DELIMITER = ','
     
-    def self.included(base)
-      base.send(:extend, ClassMethods)
-      super(base)
+    class << self      
+      def included(base)
+        super(base)
+        base.send(:extend, ClassMethods)
+      end
     end
     
     module ClassMethods
       def queryable_with(*args)
         opts = args.last.is_a?(Hash) ? args.pop : {}
+        if opts[:from]
+          self.joins << opts[:from] 
+          opts[:column] = "#{opts[:from].to_s.pluralize}_controller".classify.constantize.resource_identifier
+          opts[:table]  = opts[:from].to_s.classify.constantize.table_name
+        else
+          opts[:table] = self.model_class.table_name
+        end
         self.queryable_params = args.collect {|param| QueryParameter.new(param, opts.dup)}
+      end
+      
+      def joins
+        @joins ||= []
       end
       
       def queryable_params
@@ -33,13 +46,14 @@ module ActionResource
     end
     
     class QueryParameter
-      attr_reader :name, :fuzzy, :columns
+      attr_reader :name, :fuzzy, :columns, :table
       alias_method :fuzzy?, :fuzzy
     
       def initialize(name, opts={})
         
         @name    = name
         @fuzzy   = opts[:fuzzy]
+        @table   = opts[:table]
         
         opts[:column] ||= name
         @columns = opts[:columns] || [ opts[:column] ]
@@ -66,9 +80,9 @@ module ActionResource
         def query_string
           columns.collect do |column|
             if fuzzy?
-              "(#{column} LIKE ?)"
+              "(#{table}.#{column} LIKE ?)"
             else
-              "(#{column} = ?)"
+              "(#{table}.#{column} = ?)"
             end
           end.join(" OR ")
         end

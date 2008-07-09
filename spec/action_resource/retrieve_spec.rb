@@ -74,4 +74,34 @@ describe "ActionResource::Retrieve", :type => :controller do
     User.exists?(user.id).should be_false
   end
   
+  describe "with pagination" do
+    controller_name :users
+    
+    before :each do
+      User.delete_all
+      @users = (1..6).collect { User.create! }
+    end
+    
+    after :all do
+      User.delete_all
+    end
+    
+    it "limits the query to the correct number of records given that parameter" do
+      get :index, :limit => 2
+      assigns(:users).should == @users[0..1]
+    end
+    
+    it "offsets the query by the correct number of records" do
+      get :index, :offset => 4, :limit => 2
+      assigns(:users).should == @users[4..5]
+    end
+    
+    it "doesn't attempt to paginate if pagination is disabled" do
+      UsersController.paginatable = false
+      get :index, :offset => 4, :limit => 2
+      assigns(:users).should == @users
+      UsersController.paginatable = true # cleanup
+    end
+  end
+  
 end

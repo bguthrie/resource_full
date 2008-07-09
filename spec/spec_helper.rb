@@ -20,19 +20,30 @@ class MocksController < ActionResource::Base
 end
 
 class Mock # To emulate ActiveRecord.
+  def self.table_name; "mocks"; end
 end
 
-# TODO Remove this or find a better way to handle ActiveRecord dependencies.
 class UsersController < ActionResource::Base
 end
 
+class AddressesController < ActionResource::Base
+end
+
+# TODO Remove these or find a better way to handle ActiveRecord dependencies.
 class User < ActiveRecord::Base
+  has_many :addresses
+end
+
+class Address < ActiveRecord::Base
+  belongs_to :user
 end
 
 def putsh(stuff); puts ERB::Util.h(stuff); end
 
 ActionController::Routing::Routes.draw do |map|
   map.resources :mocks
-  map.resources :users
+  map.resources :users do |users|
+    users.resources :addresses
+  end
   map.resources :overridable_mocks
 end

@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../spec_helper'
 describe "ActionResource::Query", :type => :controller do
   controller_name "users"
   
-  before :each do
+  before :all do
     User.delete_all
     @users = [
       User.create!(:address_id => 1, :income => 70_000, :first_name => "guybrush"),
@@ -90,6 +90,27 @@ describe "ActionResource::Query", :type => :controller do
     get :index, :name => "gu"
     assigns(:users).should include(user_1, user_2)
     assigns(:users).should_not include(user_3)
+  end
+  
+  describe "with joins" do
+    controller_name :addresses
+    
+    it "filters addresses by the User resource identifier if a :from relationship is defined" do
+      User.delete_all
+      Address.delete_all
+      
+      user = User.create! :email => "gthreepwood@melee.gov"
+      address_1 = user.addresses.create!
+      address_2 = user.addresses.create!
+      address_3 = Address.create!
+      
+      UsersController.resource_identifier = :email
+      AddressesController.queryable_with :user_id, :from => :user
+      
+      get :index, :user_id => user.email
+      assigns(:addresses).should include(address_1, address_2)
+      assigns(:addresses).should_not include(address_3)
+    end
   end
   
 end

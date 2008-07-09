@@ -70,4 +70,8 @@ describe ActionResource::Base, :type => :controller do
     UsersController.resource_identifier.should == :first_name
     UsersController.resource_identifier = :id    
   end
+  
+  it "is paginatable by default" do
+    controller.class.should be_paginatable
+  end
 end
