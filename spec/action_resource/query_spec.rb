@@ -71,13 +71,26 @@ describe "ActionResource::Query", :type => :controller do
     assigns(:users).should_not include(users[2])
   end
   
-  it "should append rather than replace queryable values" do
+  it "appends to rather than replaces queryable values" do
     controller.class.queryable_with :address_id
     controller.class.queryable_with :income
     
     get :index, :address_id => 1, :income => 70_000
     assigns(:users).should include(users[0])
     assigns(:users).should_not include(users[1], users[2])
+  end
+  
+  it "counts the requested number of objects based on the supplied parameters" do
+    controller.class.queryable_with :address_id
+    
+    get :count
+    response.body.to_i.should == 3
+    
+    get :count, :address_id => 1
+    response.body.to_i.should == 2
+    
+    get :count, :address_id => 15
+    response.body.to_i.should == 0
   end
   
   describe "more complex queries" do

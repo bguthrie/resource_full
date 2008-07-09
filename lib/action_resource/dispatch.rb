@@ -20,6 +20,10 @@ module ActionResource
       dispatch_to :destroy
     end
     
+    def count
+      render :text => send("count_all_#{model_name.pluralize}")
+    end
+    
     def new
       self.model_object = send("new_#{model_name}")
     end

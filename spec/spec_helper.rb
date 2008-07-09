@@ -42,7 +42,7 @@ def putsh(stuff); puts ERB::Util.h(stuff); end
 
 ActionController::Routing::Routes.draw do |map|
   map.resources :mocks
-  map.resources :users do |users|
+  map.resources :users, :collection => {:count => :get} do |users|
     users.resources :addresses
   end
   map.resources :overridable_mocks
