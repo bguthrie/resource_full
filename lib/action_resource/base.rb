@@ -15,7 +15,7 @@ module ActionResource
       end
       
       def controller_for(resource)
-        "#{resource.to_s.underscore.pluralize}_controller".classify.constantize
+        "#{resource.to_s.underscore}_controller".classify.constantize
       end
       alias_method :[], :controller_for
       

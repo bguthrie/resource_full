@@ -8,7 +8,7 @@ module ActionResource
         if opts[:from]
           resource.joins << opts[:from]
           begin
-            target_resource = ActionResource::Base.controller_for(opts[:from])
+            target_resource = ActionResource::Base.controller_for(opts[:from].to_s.pluralize)
             opts[:column] ||= target_resource.resource_identifier if opts[:resource_identifier]
             @table = target_resource.model_class.table_name
             @from = opts[:from]
