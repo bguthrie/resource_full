@@ -80,20 +80,25 @@ describe "ActionResource::Query", :type => :controller do
     assigns(:users).should_not include(users[1], users[2])
   end
   
-  it "counts the requested number of objects based on the supplied parameters" do
+  it "counts all objects if there are no parameters" do
     controller.class.queryable_with :address_id
-    
     get :count
     response.body.to_i.should == 3
-    
+  end
+  
+  it "counts the requested objects if there are paramters" do
+    controller.class.queryable_with :address_id
     get :count, :address_id => 1
     response.body.to_i.should == 2
-    
+  end
+
+  it "counts no objects if there are none with the requested parameters" do
+    controller.class.queryable_with :address_id
     get :count, :address_id => 15
     response.body.to_i.should == 0
   end
   
-  describe "more complex queries" do
+  describe "with multiple columns" do
     controller_name :users
     
     before :all do
@@ -128,38 +133,49 @@ describe "ActionResource::Query", :type => :controller do
   describe "with joins" do
     controller_name :addresses
     
-    it "filters addresses by the appropriate column and join if a :from relationship is defined" do
+    before :each do
       User.delete_all
       Address.delete_all
       
-      user = User.create! :email => "gthreepwood@melee.gov"
-      address_1 = user.addresses.create!
-      address_2 = user.addresses.create!
-      address_3 = Address.create!
+      @user = User.create! :email => "gthreepwood@melee.gov"
+      @valid_addresses = [
+        @user.addresses.create!,
+        @user.addresses.create!
+      ]
+      @invalid_address = Address.create!
+      
+      UsersController.resource_identifier = :id
+      AddressesController.queryable_params = []
+    end
+    attr_reader :user, :valid_addresses, :invalid_address
+    
+    it "filters addresses by the appropriate column and join if a :from relationship is defined" do
       
       AddressesController.queryable_with :email, :from => :user
       
       get :index, :user_id => user.email
-      assigns(:addresses).should include(address_1, address_2)
-      assigns(:addresses).should_not include(address_3)
+      assigns(:addresses).should include(*valid_addresses)
+      assigns(:addresses).should_not include(invalid_address)
     end
     
     it "filters addresses by the User resource identifier if a :from is specified along with :resource_identifier" do
-      User.delete_all
-      Address.delete_all
-      
-      user = User.create! :email => "gthreepwood@melee.gov"
-      address_1 = user.addresses.create!
-      address_2 = user.addresses.create!
-      address_3 = Address.create!
-      
       UsersController.resource_identifier = :email
       AddressesController.queryable_with :user_id, :from => :user, :resource_identifier => true
+            
+      get :index, :user_id => user.email
+      assigns(:addresses).should include(*valid_addresses)
+      assigns(:addresses).should_not include(invalid_address)
+    end
+    
+    # TODO This is perhaps not the best place for this test.  
+    it "filters addresses by the User resource identifer if a controller is said to nest within another controller" do
+      UsersController.resource_identifier = :email
+      AddressesController.nests_within(:user)
       
       get :index, :user_id => user.email
-      assigns(:addresses).should include(address_1, address_2)
-      assigns(:addresses).should_not include(address_3)
-    end    
+      assigns(:addresses).should include(*valid_addresses)
+      assigns(:addresses).should_not include(invalid_address)
+    end
   end
   
 end

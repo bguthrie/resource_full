@@ -8,11 +8,16 @@ module ActionResource
     class << self
       def all_resources
         ActionController::Routing.possible_controllers.map do |possible_controller|
-          "#{possible_controller}_controller".classify.constantize
+          controller_for(possible_controller)
         end.select do |controller_class|
           controller_class.ancestors.include?(self)
         end
       end
+      
+      def controller_for(resource)
+        "#{resource.to_s.underscore.pluralize}_controller".classify.constantize
+      end
+      alias_method :[], :controller_for
       
       def inherited(controller)
         super(controller)
@@ -52,16 +57,11 @@ module ActionResource
     def renderable_formats
       @formats || [ :xml, :html ]
     end
-
-    def nests(controller_name, opts={})
-      nesting_id = "#{model_name}_id" || opts[:foreign_key]
-      "#{controller_name}_controller".classify.constantize.queryable_params << nesting_id
-    end
     
     def to_xml(opts={})
       {
         :name       => self.model_name,
-        :parameters => self.queryable_params.map { |p| { :name => p.name.to_s } }
+        :parameters => self.queryable_params
       }.to_xml(opts.merge(:root => "resource"))
     end
   end
