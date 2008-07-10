@@ -27,6 +27,7 @@ module ActionResource
           ActionResource::Query, 
           ActionResource::Dispatch, 
           ActionResource::Render
+        controller.send :alias_retrieval_methods!
       end
     end
   end
@@ -47,7 +48,9 @@ module ActionResource
 
     # Indicates that the CRUD methods should be called on the given class.
     def exposes(model_class)
+      remove_retrieval_methods!
       @model_class = model_class.to_s.singularize.camelize.constantize
+      alias_retrieval_methods!
     end
 
     def responds_to(*formats)
@@ -65,5 +68,27 @@ module ActionResource
         :identifier => self.resource_identifier
       }.to_xml(opts.merge(:root => "resource"))
     end
+    
+    private
+    
+      def alias_retrieval_methods!
+        alias_method "new_#{model_name}",                 :new_model_object
+        alias_method "find_#{model_name}",                :find_model_object
+        alias_method "create_#{model_name}",              :create_model_object
+        alias_method "update_#{model_name}",              :update_model_object
+        alias_method "destroy_#{model_name}",             :destroy_model_object
+        alias_method "find_all_#{model_name.pluralize}",  :find_all_model_objects
+        alias_method "count_all_#{model_name.pluralize}", :count_all_model_objects
+      end
+      
+      def remove_retrieval_methods!
+        remove_method "new_#{model_name}"
+        remove_method "find_#{model_name}"
+        remove_method "create_#{model_name}"
+        remove_method "update_#{model_name}"
+        remove_method "destroy_#{model_name}"
+        remove_method "find_all_#{model_name.pluralize}"
+        remove_method "count_all_#{model_name.pluralize}"
+      end
   end
 end

@@ -19,6 +19,13 @@ describe "ActionResource::Retrieve", :type => :controller do
     )
   end
   
+  it "changes the custom methods if the model name is changed" do
+    controller.class.exposes Mock
+    controller.should respond_to(:find_mock)
+    controller.should_not respond_to(:find_user)
+    controller.class.exposes User # cleanup
+  end
+  
   def params; @params ||= {}; end
   
   it "finds the requested model object" do

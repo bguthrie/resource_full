@@ -4,13 +4,6 @@ module ActionResource
       def included(base)
         super(base)
         # Define new_person, update_person, etc.
-        base.send(:alias_method, "new_#{base.model_name}",                 :new_model_object)
-        base.send(:alias_method, "find_#{base.model_name}",                :find_model_object)
-        base.send(:alias_method, "create_#{base.model_name}",              :create_model_object)
-        base.send(:alias_method, "update_#{base.model_name}",              :update_model_object)
-        base.send(:alias_method, "destroy_#{base.model_name}",             :destroy_model_object)
-        base.send(:alias_method, "find_all_#{base.model_name.pluralize}",  :find_all_model_objects)
-        base.send(:alias_method, "count_all_#{base.model_name.pluralize}", :count_all_model_objects)
         base.before_filter :move_queryable_params_into_model_params_on_create, :only => [:create]
       end
     end
