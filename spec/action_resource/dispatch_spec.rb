@@ -26,8 +26,14 @@ describe "ActionResource::Dispatch", :type => :controller do
     get :index, :format => 'html'
   end
   
-  it "raises a 406 error if it does not respond to a particular format" do
+  it "raises a 406 error if it does not respond to a format for which no methods are included" do
     get :index, :format => 'json'
+    response.code.should == '406'
+  end
+  
+  it "raises a 406 error if it does not respond to a format which has been explicitly removed" do
+    OverridableMocksController.responds_to :xml
+    get :index
     response.code.should == '406'
   end
   

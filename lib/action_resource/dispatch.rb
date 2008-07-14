@@ -52,7 +52,18 @@ module ActionResource
     
     private
     
+    def responds_to_request_format?
+      self.class.renderable_formats.any? do |format|
+        request.format.send "#{format}?"
+      end
+    end
+    
     def dispatch_to(method)
+      unless responds_to_request_format?
+        render :text => "Resource does not respond to requested format #{request.format}", :status => :not_acceptable
+        return
+      end
+      
       respond_to do |requested_format|
         self.class.renderable_formats.each do |renderable_format|
           requested_format.send(renderable_format) { send("#{method}_#{renderable_format}") }
