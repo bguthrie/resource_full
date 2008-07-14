@@ -142,7 +142,9 @@ describe "ActionResource::Query", :type => :controller do
         @user.addresses.create!,
         @user.addresses.create!
       ]
-      @invalid_address = Address.create!
+      
+      invalid_user = User.create! :email => "blah@blah.com"
+      @invalid_address = invalid_user.addresses.create!
       
       UsersController.resource_identifier = :id
       AddressesController.queryable_params = []
@@ -152,7 +154,7 @@ describe "ActionResource::Query", :type => :controller do
     it "filters addresses by the appropriate column and join if a :from relationship is defined" do
       AddressesController.queryable_with :email, :from => :user
       
-      get :index, :user_id => user.email
+      get :index, :user_id => 'foo', :email => user.email
       assigns(:addresses).should include(*valid_addresses)
       assigns(:addresses).should_not include(invalid_address)
     end
