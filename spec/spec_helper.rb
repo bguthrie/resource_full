@@ -31,7 +31,11 @@ end
 
 # TODO Remove these or find a better way to handle ActiveRecord dependencies.
 class User < ActiveRecord::Base
+  class << self
+    attr_accessor_with_default :skip_validation, :true
+  end
   has_many :addresses
+  def skip_validation?; self.class.skip_validation; end
 end
 
 class Address < ActiveRecord::Base

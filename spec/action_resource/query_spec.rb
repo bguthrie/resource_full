@@ -150,7 +150,6 @@ describe "ActionResource::Query", :type => :controller do
     attr_reader :user, :valid_addresses, :invalid_address
     
     it "filters addresses by the appropriate column and join if a :from relationship is defined" do
-      
       AddressesController.queryable_with :email, :from => :user
       
       get :index, :user_id => user.email

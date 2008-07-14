@@ -16,18 +16,12 @@ module ActionResource
     
     protected
     
-    # TODO Method aliasing is messy here because the model is overridable.  Find a nicer way to handle this.
-    def method_missing(method, *args, &block)
-      method_name = method.to_s
-      if method_name.include?(model_name)
-        send(method_name.gsub(model_name, "model_object"))
-      else 
-        super(method, *args, &block)
-      end
-    end
-    
     def find_model_object
-      model_class.find(:first, :conditions => { self.class.resource_identifier => params[:id]})
+      # TODO I am not sure what the correct behavior should be here, but I'm artifically
+      # generating the exception in order to avoid altering the render methods for the time being.
+      returning(model_class.find(:first, :conditions => { self.class.resource_identifier => params[:id]})) do |o|
+        raise ActiveRecord::RecordNotFound, "not found: #{params[:id]}" if o.nil?
+      end
     end
   
     def new_model_object

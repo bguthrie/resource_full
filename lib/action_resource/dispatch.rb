@@ -60,7 +60,7 @@ module ActionResource
     
     def dispatch_to(method)
       unless responds_to_request_format?
-        render :text => "Resource does not respond to requested format #{request.format}", :status => :not_acceptable
+        render :text => "Resource does not respond to requested format #{request.format.to_str}", :status => :not_acceptable
         return
       end
       
