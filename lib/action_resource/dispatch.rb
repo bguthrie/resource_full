@@ -21,7 +21,10 @@ module ActionResource
     end
     
     def count
-      render :text => send("count_all_#{model_name.pluralize}")
+      xml = Builder::XmlMarkup.new :indent => 2
+      xml.instruct!
+      render :xml => xml.count(send("count_all_#{model_name.pluralize}"))
+      xml = nil
     end
     
     def new
