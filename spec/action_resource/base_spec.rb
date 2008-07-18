@@ -32,16 +32,15 @@ describe ActionResource::Base, :type => :controller do
   end
   
   it "renders two formats by default" do
-    controller.class.renderable_formats.should include(:xml, :html)
+    controller.class.allowed_formats.should include(:xml, :html)
   end
   
   it "allows you to specify what formats to render" do
     controller.class.responds_to :xml, :json
-    controller.class.renderable_formats.should include(:xml, :json)
-    controller.class.renderable_formats.should_not include(:html)
+    controller.class.allowed_formats.should include(:xml, :json)
+    controller.class.allowed_formats.should_not include(:html)
   end
   
-  it "nests itself within another controller"
   it "disables sessions if the request format is XML or JSON"
   it "plays nicely with subclasses and attributes"
   
@@ -66,9 +65,9 @@ describe ActionResource::Base, :type => :controller do
   end
   
   it "allows you to set the resource_identifier field" do
-    UsersController.resource_identifier = :first_name
-    UsersController.resource_identifier.should == :first_name
-    UsersController.resource_identifier = :id    
+    controller.class.resource_identifier = :first_name
+    controller.class.resource_identifier.should == :first_name
+    controller.class.resource_identifier = :id # cleanup
   end
   
   it "is paginatable by default" do
