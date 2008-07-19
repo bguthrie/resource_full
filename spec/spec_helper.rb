@@ -12,21 +12,21 @@ Spec::Runner.configure do |config|
   # in your config/boot.rb
   config.use_transactional_fixtures = true
   config.use_instantiated_fixtures  = false
-  config.fixture_path = RAILS_ROOT + '/vendor/plugins/action_resource/spec/fixtures/'
+  config.fixture_path = RAILS_ROOT + '/vendor/plugins/resource_full/spec/fixtures/'
   config.mock_with :mocha
 end
 
-class MocksController < ActionResource::Base
+class MocksController < ResourceFull::Base
 end
 
 class Mock # To emulate ActiveRecord.
   def self.table_name; "mocks"; end
 end
 
-class UsersController < ActionResource::Base
+class UsersController < ResourceFull::Base
 end
 
-class AddressesController < ActionResource::Base
+class AddressesController < ResourceFull::Base
 end
 
 # TODO Remove these or find a better way to handle ActiveRecord dependencies.

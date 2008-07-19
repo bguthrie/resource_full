@@ -1,7 +1,7 @@
-ActionResource
+ResourceFull
 ==============
 
-ActionResource is a subclass of ActionController intended to provide a 
+ResourceFull is a subclass of ActionController intended to provide a 
 comprehensive resource modeling and querying framework.  It allows for
 abstracted handling of queryable parameters, a separation of controller
 concerns into multiple submethods, handling of respondable formats,
@@ -15,7 +15,7 @@ custom behaviors for renders and CRUD behavior.
 Example
 =======
 
-  class UsersController < ActionResource::Base
+  class UsersController < ResourceFull::Base
     self.resource_identifier = :username
 
     queryable_with :address_id, :first_name, :last_name
