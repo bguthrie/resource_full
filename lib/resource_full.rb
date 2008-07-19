@@ -1,0 +1,7 @@
+require 'resource_full/core_extensions/exception'
+require 'resource_full/dispatch'
+require 'resource_full/query'
+require 'resource_full/render'
+require 'resource_full/retrieve'
+require 'resource_full/version'
+require 'resource_full/base'
