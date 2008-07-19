@@ -16,19 +16,27 @@ Example
 =======
 
   class UsersController < ResourceFull::Base
-    self.resource_identifier = :username
-
-    queryable_with :address_id, :first_name, :last_name
+    identified_by :username
+    
+    queryable_with :city, :state, :from => :address
+    queryable_with :name, :columns => [:first_name, :last_name]
     queryable_with :email_address, :fuzzy => true
-    nests :addresses
-    responds_to :html, :xml
+    
+    responds_to :html
+    responds_to :xml, :only => [:read, :update]
+  end
+  
+  class AddressesController < ResourceFull::Base
+    nests_within :users
+    queryable_with :city, :state
   end
 
 This allows for the following:
 
-  /users/bguthrie
+  /users/bguthrie.xml
+  /users?name=Guthrie
   /users?email_address=gmail
-  /users.xml?address_id=1&first_name=Brian
+  /users.xml?city=Chicago&name=Brian,Paul,Alicia
   /users/bguthrie/addresses
 
   >> UsersController.to_xml
