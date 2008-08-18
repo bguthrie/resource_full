@@ -78,6 +78,12 @@ module ResourceFull
         renderable_formats[format].sum {|crud_action| CRUD_METHODS_TO_ACTIONS[crud_action]}
       end
       
+      # A list of all possible CRUD actions that this framework understands, which is to say,
+      # the core Rails actions plus +count+ (and perhaps others eventually).
+      def possible_actions
+        CRUD_METHODS_TO_ACTIONS.values.sum([])
+      end
+      
       # Returns true if the request format is an allowed format.
       def responds_to_request_format?(request)
         allowed_formats.include? extract_request_format(request)
@@ -85,6 +91,9 @@ module ResourceFull
       
       # Returns true if the request action is an allowed action as defined by the allowed CRUD methods.
       def responds_to_request_action?(request, action)
+        # TODO Consider using ActionController's +verify+ method in preference to this.
+        # TODO We don't verify custom methods yet, so ignore them.
+        return true unless possible_actions.include?(action.to_sym)
         allowed_actions(extract_request_format(request)).include? action.to_sym
       end
       

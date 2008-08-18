@@ -58,7 +58,7 @@ module ResourceFull
     
     # The class of the model exposed by this resource.  Derived from the model name.  See +exposes+.
     def model_class
-      @model_class || model_name.camelize.constantize
+      @model_class ||= model_name.camelize.constantize
     end
 
     # Indicates that the CRUD methods should be called on the given class.  Accepts
@@ -71,8 +71,7 @@ module ResourceFull
     
     # Renders the resource as XML.
     def to_xml(opts={})
-      {
-        :name       => self.model_name,
+      { :name       => self.model_name,
         :parameters => self.queryable_params,
         :identifier => self.resource_identifier
       }.to_xml(opts.merge(:root => "resource"))

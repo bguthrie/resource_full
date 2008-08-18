@@ -1,9 +1,5 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-class OverridableMocksController < ApplicationController
-  exposes :mocks
-end
-
 describe "ResourceFull::Dispatch", :type => :controller do
   controller_name :mocks
   
@@ -58,6 +54,10 @@ describe "ResourceFull::Dispatch", :type => :controller do
       controller.class.allowed_methods.should include(:create, :read, :update, :delete)
     end
     
+    it "lists all the standard Rails methods plus count as its possible actions" do
+      controller.class.possible_actions.should include(:create, :new, :show, :index, :count, :update, :edit, :destroy)
+    end
+    
     it "claims to not respond to any methods for an unsupported format" do
       controller.class.responds_to :xml
       controller.class.allowed_methods(:html).should be_empty
@@ -92,6 +92,15 @@ describe "ResourceFull::Dispatch", :type => :controller do
       response.code.should == '405'
       response.body.should =~ /Resource does not allow destroy action/
     end
+    
+    it "ignores and does not verify custom methods" do
+      controller.class.responds_to :xml, :only => [:delete]
+      controller.stubs :foo
+      get :foo, :format => 'xml'
+      response.code.should == '200'
+    end
+    
+    it "allows you to specify the appropriate CRUD semantics of a custom method"
   end
   
   describe "GET index" do

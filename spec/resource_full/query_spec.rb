@@ -14,7 +14,7 @@ describe "ResourceFull::Query", :type => :controller do
   attr_reader :users
   
   before :each do
-    UsersController.queryable_params = []
+    UsersController.queryable_params = nil
   end
   
   it "isn't queryable on any parameters by default" do
@@ -112,7 +112,7 @@ describe "ResourceFull::Query", :type => :controller do
     attr_reader :users
     
     before :each do
-      UsersController.queryable_params = []
+      UsersController.queryable_params = nil
     end
   
     it "allows a queryable parameter to map to multiple columns" do    
@@ -147,7 +147,7 @@ describe "ResourceFull::Query", :type => :controller do
       @invalid_address = invalid_user.addresses.create!
       
       UsersController.resource_identifier = :id
-      AddressesController.queryable_params = []
+      AddressesController.queryable_params = nil
     end
     attr_reader :user, :valid_addresses, :invalid_address
     
@@ -179,4 +179,33 @@ describe "ResourceFull::Query", :type => :controller do
     end
   end
   
+  describe "with subclasses" do
+    controller_name :sub_mocks
+    before :each do
+      MocksController.queryable_params    = nil
+      SubMocksController.queryable_params = nil
+    end
+    
+    it "allows subclasses to add to the list of queryable parameters" do
+      MocksController.queryable_with :foo
+      SubMocksController.queryable_with :bar
+      SubMocksController.should be_queryable_with(:foo, :bar)      
+    end
+    
+    it "doesn't alter the queryable parameters of a superclass when a subclass" do
+      MocksController.queryable_with :foo
+      SubMocksController.queryable_with :bar
+      MocksController.should_not be_queryable_with(:bar)
+    end
+        
+    it "uses the model and table name of the subclass rather than the superclass when querying" do
+      MocksController.queryable_with :first_name
+      SubMocksController.exposes :users
+      User.create! :first_name => "guybrush"
+      Mock.expects(:find).never
+      get :index, :format => 'xml', :first_name => 'guybrush'
+      response.body.should have_tag("user") { with_tag("first-name", "guybrush") }
+    end
+    
+  end
 end

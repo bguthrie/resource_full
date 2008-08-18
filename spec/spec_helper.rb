@@ -19,6 +19,9 @@ end
 class MocksController < ResourceFull::Base
 end
 
+class SubMocksController < MocksController
+end
+
 class Mock # To emulate ActiveRecord.
   def self.table_name; "mocks"; end
 end
@@ -42,12 +45,15 @@ class Address < ActiveRecord::Base
   belongs_to :user
 end
 
-def putsh(stuff); puts ERB::Util.h(stuff); end
+def putsh(stuff); puts ERB::Util.h(stuff) + "<br/>"; end
+def ph(stuff); puts ERB::Util.h(stuff.inspect) + "<br/>"; end
+
 
 ActionController::Routing::Routes.draw do |map|
+  map.foo '/foo', :controller => 'mocks', :action => 'foo'
   map.resources :mocks
   map.resources :users, :collection => {:count => :get} do |users|
     users.resources :addresses
   end
-  map.resources :overridable_mocks
+  map.resources :sub_mocks
 end

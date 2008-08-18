@@ -23,14 +23,17 @@ module ResourceFull
       # Examples:
       #
       #   queryable_with :user_id
-      #   queryable_with :body, :fuzzy => true
+      #   queryable_with :description, :fuzzy => true
       #   queryable_with :name, :columns => [:first_name, :last_name]
       #   queryable_with :street_address, :from => :address
       #
       # TODO No full-text search support.
       def queryable_with(*args)
-        opts = args.last.is_a?(Hash) ? args.pop : {}
-        self.queryable_params += args.collect {|param| ResourceFull::Query::Parameter.new(param, self, opts.dup)}
+        opts = args.extract_options!
+        self.queryable_params += args.collect do |param|
+          parameter_class = opts[:from] ? ResourceFull::Query::ForeignResourceParameter : ResourceFull::Query::Parameter
+          parameter_class.new(param, self, opts.dup)
+        end
       end
       
       # :nodoc:
@@ -40,7 +43,25 @@ module ResourceFull
       
       # All queryable parameters.  Objects are of type ResourceFull::Query::Parameter.
       def queryable_params
-        @queryable_params ||= []
+        unless defined?(@queryable_params) && !@queryable_params.nil?
+          @queryable_params = []
+          if superclass.respond_to?(:queryable_params)
+            @queryable_params += superclass.queryable_params.collect {|param| param.subclass(self)}
+          end
+        end
+        @queryable_params
+        
+        # @queryable_params ||= []
+        # if superclass.respond_to?(:queryable_params)
+        #   puts "subclassing params for #{self}"
+        #   return @queryable_params + superclass.queryable_params.collect {|param| param.subclass(self)}
+        # end
+        # @queryable_params
+      end
+      
+      # Returns true if the controller is queryable with all of the named parameters.
+      def queryable_with?(*params)
+        (queryable_params.collect(&:name) & params.collect(&:to_sym)).size == params.size
       end
       
       # :nodoc:

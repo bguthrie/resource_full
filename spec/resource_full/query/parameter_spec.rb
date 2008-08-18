@@ -6,7 +6,7 @@ describe ResourceFull::Query::Parameter do
   it "renders itself as XML" do
     xml = ResourceFull::Query::Parameter.new(
       :name, 
-      mock(:model_name => "user", :model_class => mock(:table_name => "users")), 
+      mock(:model_name => "user"), 
       :fuzzy => true, 
       :columns => [:full_name, :username, :email]
     ).to_xml
@@ -18,4 +18,11 @@ describe ResourceFull::Query::Parameter do
       with_tag("columns", "full_name,username,email")
     end
   end
+  
+  describe "subclass" do
+    it "returns a copy of itself with the given resource" do
+      ResourceFull::Query::Parameter.new(:name, MocksController).subclass(SubMocksController).from.should == "sub_mock"
+    end
+  end
+  
 end
