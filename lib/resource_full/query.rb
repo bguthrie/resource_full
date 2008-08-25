@@ -25,7 +25,7 @@ module ResourceFull
       #   queryable_with :user_id
       #   queryable_with :description, :fuzzy => true
       #   queryable_with :name, :columns => [:first_name, :last_name]
-      #   queryable_with :street_address, :from => :address
+      #   queryable_with :street_address, :from => :address, :column => :street
       #
       # TODO No full-text search support.
       def queryable_with(*args)
@@ -41,7 +41,7 @@ module ResourceFull
         @joins ||= []
       end
       
-      # All queryable parameters.  Objects are of type ResourceFull::Query::Parameter.
+      # All queryable parameters.  Objects are of type +ResourceFull::Query::Parameter+ or one of its subclasses.
       def queryable_params
         unless defined?(@queryable_params) && !@queryable_params.nil?
           @queryable_params = []
@@ -50,13 +50,6 @@ module ResourceFull
           end
         end
         @queryable_params
-        
-        # @queryable_params ||= []
-        # if superclass.respond_to?(:queryable_params)
-        #   puts "subclassing params for #{self}"
-        #   return @queryable_params + superclass.queryable_params.collect {|param| param.subclass(self)}
-        # end
-        # @queryable_params
       end
       
       # Returns true if the controller is queryable with all of the named parameters.
