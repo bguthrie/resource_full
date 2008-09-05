@@ -21,7 +21,7 @@ describe ResourceFull::Query::Parameter do
   
   describe "subclass" do
     it "returns a copy of itself with the given resource" do
-      ResourceFull::Query::Parameter.new(:name, MocksController).subclass(SubMocksController).from.should == "sub_mock"
+      ResourceFull::Query::Parameter.new(:name, ResourceFullMocksController).subclass(ResourceFullSubMocksController).from.should == "resource_full_sub_mock"
     end
   end
   

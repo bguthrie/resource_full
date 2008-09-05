@@ -14,46 +14,64 @@ Spec::Runner.configure do |config|
   config.use_instantiated_fixtures  = false
   config.fixture_path = RAILS_ROOT + '/vendor/plugins/resource_full/spec/fixtures/'
   config.mock_with :mocha
+  
+  config.before(:all) do
+    ActiveRecord::Base.connection.create_table "resource_full_mock_addresses", :force => true do |t|
+      t.string   "street"
+      t.string   "city"
+      t.string   "state_code"
+      t.integer  "zip"
+      t.integer  "resource_full_mock_user_id"
+      t.datetime "created_at"
+      t.datetime "updated_at"
+    end
+
+    ActiveRecord::Base.connection.create_table "resource_full_mock_users", :force => true do |t|
+      t.string   "first_name"
+      t.string   "last_name"
+      t.date     "birthdate"
+      t.string   "email"
+      t.string   "join_date"
+      t.integer  "income"
+      t.integer  "address_id"
+      t.datetime "created_at"
+      t.datetime "updated_at"
+    end
+    
+    ActionController::Routing::Routes.draw do |map|
+      map.foo '/foo', :controller => 'resource_full_mocks', :action => 'foo'
+      map.resources :resource_full_mocks
+      map.resources :resource_full_mock_users, :collection => {:count => :get} do |users|
+        users.resources :resource_full_mock_addresses
+      end
+      map.resources :resource_full_sub_mocks
+    end
+  end
+  
 end
 
-class MocksController < ResourceFull::Base
+class ResourceFullMock
+  def self.table_name; "mock"; end
 end
-
-class SubMocksController < MocksController
-end
-
-class Mock # To emulate ActiveRecord.
-  def self.table_name; "mocks"; end
-end
-
-class UsersController < ResourceFull::Base
-end
-
-class AddressesController < ResourceFull::Base
-end
+class ResourceFullSubMock < ResourceFullMock; end
 
 # TODO Remove these or find a better way to handle ActiveRecord dependencies.
-class User < ActiveRecord::Base
+class ResourceFullMockUser < ActiveRecord::Base
   class << self
     attr_accessor_with_default :skip_validation, :true
   end
-  has_many :addresses
+  has_many :resource_full_mock_addresses
   def skip_validation?; self.class.skip_validation; end
 end
 
-class Address < ActiveRecord::Base
-  belongs_to :user
+class ResourceFullMockAddress < ActiveRecord::Base
+  belongs_to :resource_full_mock_user
 end
+
+class ResourceFullMocksController < ResourceFull::Base;             end
+class ResourceFullSubMocksController < ResourceFullMocksController; end
+class ResourceFullMockUsersController < ResourceFull::Base;         end
+class ResourceFullMockAddressesController < ResourceFull::Base;     end
 
 def putsh(stuff); puts ERB::Util.h(stuff) + "<br/>"; end
 def ph(stuff); puts ERB::Util.h(stuff.inspect) + "<br/>"; end
-
-
-ActionController::Routing::Routes.draw do |map|
-  map.foo '/foo', :controller => 'mocks', :action => 'foo'
-  map.resources :mocks
-  map.resources :users, :collection => {:count => :get} do |users|
-    users.resources :addresses
-  end
-  map.resources :sub_mocks
-end
