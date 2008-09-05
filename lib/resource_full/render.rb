@@ -45,6 +45,10 @@ module ResourceFull
       rescue ActiveRecord::RecordNotFound => e
         render :xml => e.to_xml, :status => :not_found
       end
+      
+      def new_xml
+        render :xml => send("new_#{model_name}").to_xml
+      end
   
       def show_html
         self.model_object = send("find_#{model_name}")
@@ -85,12 +89,8 @@ module ResourceFull
         redirect_to :back
       end
       
-      def handle_generic_exception_with_correct_response_format(exception)
-        if request.format.xml?
-          render :xml => exception.to_xml
-        else
-          raise exception
-        end
+      def new_html
+        self.model_object = send("new_#{model_name}")
       end
   
     private
@@ -105,6 +105,14 @@ module ResourceFull
         if errors.any? { |message| message.include? CONFLICT_MESSAGE }
           :conflict
         else :unprocessable_entity end
+      end
+      
+      def handle_generic_exception_with_correct_response_format(exception)
+        if request.format.xml?
+          render :xml => exception.to_xml
+        else
+          raise exception
+        end
       end
   end
 end

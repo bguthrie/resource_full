@@ -36,7 +36,7 @@ module ResourceFull
       def conditions_for(params)
         values = param_values_for(params)
         unless values.empty?
-          final_query_string = Array.new(values.size, query_string).join(" OR ")
+          final_query_string = values.collect { |value| query_string(value) }.join(" OR ")
           final_values       = values.sum([]) { |value| Array.new(columns.size, value) }
           
           [ final_query_string ] + final_values
@@ -60,8 +60,10 @@ module ResourceFull
           values
         end
       
-        def query_string
+        def query_string(value)
           columns.collect do |column|
+            # Convert to a column name if column is a proc.
+            column = column.call(value) if column.is_a?(Proc)
             if fuzzy?
               "(#{table}.#{column} LIKE ?)"
             else

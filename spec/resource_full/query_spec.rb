@@ -170,6 +170,15 @@ describe "ResourceFull::Query", :type => :controller do
       assigns(:resource_full_mock_addresses).should_not include(invalid_address)
     end
     
+    it "filters addresses by the User resource identifier if a :from is specified along with :resource_identifier and the resource identifer is a Proc" do
+      ResourceFullMockUsersController.identified_by :email, :unless => :id_numeric
+      ResourceFullMockAddressesController.queryable_with :resource_full_mock_user_id, :from => :resource_full_mock_user, :resource_identifier => true
+            
+      get :index, :resource_full_mock_user_id => user.id
+      assigns(:resource_full_mock_addresses).should include(*valid_addresses)
+      assigns(:resource_full_mock_addresses).should_not include(invalid_address)
+    end
+    
     # TODO This is perhaps not the best place for this test.  
     it "filters addresses by the User resource identifer if a controller is said to nest within another controller" do
       ResourceFullMockUsersController.resource_identifier = :email

@@ -146,6 +146,10 @@ module ResourceFull
       dispatch_to :destroy
     end
     
+    def new
+      dispatch_to :new
+    end
+    
     # Renders the number of objects in the database, in the following form:
     #
     #   <count type="integer">34</count>
@@ -159,10 +163,6 @@ module ResourceFull
       xml.instruct!
       render :xml => xml.count(send("count_all_#{model_name.pluralize}"))
       xml = nil
-    end
-    
-    def new
-      self.model_object = send("new_#{model_name}")
     end
     
     def edit
