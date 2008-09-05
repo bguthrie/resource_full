@@ -25,20 +25,73 @@ describe "ResourceFull::Retrieve", :type => :controller do
     controller.should_not respond_to(:find_resource_full_mock_user)
     controller.class.exposes ResourceFullMockUser # cleanup
   end
-  
-  def params; @params ||= {}; end
-  
+    
   it "finds the requested model object" do
     user = ResourceFullMockUser.create!
     get :show, :id => user.id
     assigns(:resource_full_mock_user).should == user
   end
   
-  it "finds the requested model object using the correct column if the resource_identifier attribute has been overridden" do
-    ResourceFullMockUsersController.resource_identifier = :first_name
-    ResourceFullMockUser.create! :first_name => "eustace"
-    get :show, :id => "eustace"
-    assigns(:resource_full_mock_user).first_name.should == "eustace"
+  describe "resource_identifier and identified_by" do
+    controller_name "resource_full_mock_users"
+    
+    before :each do
+      ResourceFullMockUser.delete_all
+      ResourceFullMockUsersController.resource_identifier = :id
+    end
+    
+    def get_should_retrieve_by_first_name
+      eustace = ResourceFullMockUser.create! :first_name => "eustace"
+      eustace_noise = ResourceFullMockUser.create! :first_name => eustace.id
+      get :show, :id => "eustace"
+      assigns(:resource_full_mock_user).should == eustace
+    end
+    
+    def get_should_retrieve_by_id
+      jimbo = ResourceFullMockUser.create! :first_name => "jimbo"
+      jimbo_noise = ResourceFullMockUser.create! :first_name => jimbo.id
+      get :show, :id => jimbo.id
+      assigns(:resource_full_mock_user).should == jimbo
+    end
+    
+    it "finds the requested model object using the correct column if the resource_identifier attribute has been overridden" do
+      ResourceFullMockUsersController.resource_identifier = :first_name
+      get_should_retrieve_by_first_name
+    end
+    
+    it "doesn't find the requested model object if there are none to find" do
+      ResourceFullMockUsersController.resource_identifier = :first_name
+      get :show, :id => "eustace"
+      assigns(:resource_full_mock_user).should be_nil
+    end
+  
+    it "finds the requested model object using the correct column if a block is provided to resource_identifier" do
+      ResourceFullMockUsersController.resource_identifier = lambda do |id| 
+        if id =~ /[0-9]+/
+          :id
+        else :first_name end
+      end
+      get_should_retrieve_by_first_name
+      get_should_retrieve_by_id
+    end
+    
+    it "finds the requested model object only if the optional block provided to identifed_by is true" do
+      ResourceFullMockUsersController.identified_by :first_name, :if => lambda { |id| id =~ /[a-zA-Z]+/ }
+      get_should_retrieve_by_first_name
+      get_should_retrieve_by_id
+    end
+    
+    it "finds the requested model object unless the optional block provided to identifed_by is true" do
+      ResourceFullMockUsersController.identified_by :first_name, :unless => lambda { |id| id =~ /[0-9]+/ }
+      get_should_retrieve_by_first_name
+      get_should_retrieve_by_id
+    end
+    
+    it "finds the requested model object unless it requests a fallback to a numeric id" do
+      ResourceFullMockUsersController.identified_by :first_name, :unless => :id_numeric
+      get_should_retrieve_by_first_name
+      get_should_retrieve_by_id
+    end
   end
   
   it "updates the requested model object based on the given parameters" do

@@ -51,9 +51,35 @@ module ResourceFull
     end
     
     # Indicates that this resource is identified by a database column other than the default
-    # :id.  TODO This should honor the model's primary key column but needn't be bound by it.
-    def identified_by(column_name)
-      self.resource_identifier = column_name
+    # :id.  
+    # TODO This should honor the model's primary key column but needn't be bound by it.
+    # TODO Refactor this.
+    # TODO Improve the documentation.
+    def identified_by(*args, &block)
+      opts = args.extract_options!
+      column = args.first
+      if !block.nil?
+        self.resource_identifier = block
+      elsif !column.nil?
+        if !opts.empty? && ( opts.has_key?(:if) || opts.has_key?(:unless) )
+          if opts[:unless] == :id_numeric
+            opts[:unless] = lambda { |id| id =~ /^[0-9]+$/ }
+          end
+          
+          # Negate the condition to generate an :if from an :unless.
+          condition = opts[:if] || lambda { |id| not opts[:unless].call(id) }
+          
+          self.resource_identifier = lambda do |id|
+            if condition.call(id)
+              column
+            else :id end
+          end
+        else
+          self.resource_identifier = column
+        end
+      else
+        raise ArgumentError, "identified_by expects either a block or a column name and some options"
+      end
     end
     
     # The class of the model exposed by this resource.  Derived from the model name.  See +exposes+.
