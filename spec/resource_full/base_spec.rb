@@ -73,4 +73,19 @@ describe ResourceFull::Base, :type => :controller do
   it "is paginatable by default" do
     controller.class.should be_paginatable
   end
+  
+  it "translates a model name into a controller constant" do
+    ResourceFull::Base.controller_for("users").should == UsersController
+  end
+  
+  it "returns nil if it cannot constantize the requested controller" do
+    ResourceFull::Base.controller_for("nonsense").should be_nil
+  end
+  
+  it "returns the controller it's been given if it receives a Class object" do
+    ResourceFull::Base.controller_for(UsersController).should == UsersController
+  end
+  
+  # TODO Don't know if I really need this behavior.
+  it "returns nil if the requested controller is not a subclass of ResourceFull"
 end

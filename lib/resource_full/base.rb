@@ -17,7 +17,10 @@ module ResourceFull
       
       # Returns the controller for the given resource.
       def controller_for(resource)
+        return resource if resource.is_a?(Class)
         "#{resource.to_s.underscore}_controller".classify.constantize
+      rescue NameError
+        nil
       end
       alias_method :[], :controller_for
       

@@ -217,6 +217,18 @@ describe "ResourceFull::Query", :type => :controller do
       get :index, :format => 'xml', :first_name => 'guybrush'
       response.body.should have_tag("resource-full-mock-user") { with_tag("first-name", "guybrush") }
     end
+  end
+  
+  describe "with procs" do
+    controller_name "resource_full_users"
+    before :each do
+      ResourceFullUsersController.queryable_params = nil
+    end
     
+    # it "should filter the results of a query based on a proc" do
+    #   ResourceFullUsersController.queryable_with :email_address, :sql => "", :joins => [...]
+    #   ResourceFullUsersController.queryable_with :email_address do |user|
+    #   end
+    # end
   end
 end
