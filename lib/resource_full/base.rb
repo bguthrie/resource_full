@@ -109,13 +109,13 @@ module ResourceFull
     private
     
       def alias_retrieval_methods!
-        alias_method "new_#{model_name}",                 :new_model_object
-        alias_method "find_#{model_name}",                :find_model_object
-        alias_method "create_#{model_name}",              :create_model_object
-        alias_method "update_#{model_name}",              :update_model_object
-        alias_method "destroy_#{model_name}",             :destroy_model_object
-        alias_method "find_all_#{model_name.pluralize}",  :find_all_model_objects
-        alias_method "count_all_#{model_name.pluralize}", :count_all_model_objects
+        define_method("new_#{model_name}")                 { new_model_object }
+        define_method("find_#{model_name}")                { find_model_object }
+        define_method("create_#{model_name}")              { create_model_object }
+        define_method("update_#{model_name}")              { update_model_object }
+        define_method("destroy_#{model_name}")             { destroy_model_object }
+        define_method("find_all_#{model_name.pluralize}")  { find_all_model_objects }
+        define_method("count_all_#{model_name.pluralize}") { count_all_model_objects }
       end
       
       def remove_retrieval_methods!
