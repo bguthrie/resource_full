@@ -7,13 +7,15 @@ module ResourceFull
       attr_reader :name, :columns
     
       def initialize(name, resource, opts={})
-        @resource = resource        
-        @name     = name
-        @fuzzy    = opts[:fuzzy] || false
-        @columns  = opts[:columns] || [ opts[:column] || name ]
+        @resource  = resource        
+        @name      = name
+        @fuzzy     = opts[:fuzzy] || false
+        @columns   = opts[:columns] || [ opts[:column] || name ]
+        @allow_nil = opts[:allow_nil] || false
       end
       
       def fuzzy?; @fuzzy; end
+      def allow_nil?; @allow_nil; end
       
       def table
         @resource.model_class.table_name
@@ -29,7 +31,8 @@ module ResourceFull
           @name,
           new_resource,
           :fuzzy => @fuzzy,
-          :columns => @column
+          :columns => @column,
+          :allow_nil => @allow_nil
         )
       end
       
@@ -40,7 +43,13 @@ module ResourceFull
           final_values       = values.sum([]) { |value| Array.new(columns.size, value) }
           
           [ final_query_string ] + final_values
-        else [] end
+        else
+          if (allow_nil? && params.has_key?(self.name) && params[self.name].blank?)
+            [query_string(params[self.name])]
+          else
+            []
+          end
+        end
       end
       
       def to_xml(opts={})
@@ -48,7 +57,8 @@ module ResourceFull
           :name => name.to_s,
           :fuzzy => fuzzy?,
           :from => from.to_s,
-          :columns => columns.join(",")
+          :columns => columns.join(","),
+          :allow_nil => allow_nil?
         }.to_xml(opts.merge(:root => "parameter"))
       end
       
@@ -62,16 +72,17 @@ module ResourceFull
       
         def query_string(value)
           columns.collect do |column|
-            # Convert to a column name if column is a proc.
+            # Convert to a column name if column is a proc. TODO There must be a cleaner way to do this.
             column = column.call(value) if column.is_a?(Proc)
             if fuzzy?
               "(#{table}.#{column} LIKE ?)"
-            else
+            elsif !value.blank?
               "(#{table}.#{column} = ?)"
+            elsif allow_nil?
+              "(COALESCE(#{table}.#{column},'')='')"
             end
           end.join(" OR ")
-        end
-      
+        end      
     end
   end
 end

@@ -41,9 +41,6 @@ describe ResourceFull::Base, :type => :controller do
     controller.class.allowed_formats.should_not include(:html)
   end
 
-  it "disables sessions if the request format is XML or JSON"
-  it "plays nicely with subclasses and attributes"
-
   class NonResourcesController < ActionController::Base; end
   class ResourcesController    < ResourceFull::Base; end
 

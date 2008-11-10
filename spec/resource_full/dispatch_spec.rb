@@ -97,8 +97,9 @@ describe "ResourceFull::Dispatch", :type => :controller do
     
     it "ignores and does not verify custom methods" do
       controller.class.responds_to :xml, :only => [:delete]
-      controller.stubs :foo
+            
       get :foo, :format => 'xml'
+      response.body.should have_tag("foo", "bar")
       response.code.should == '200'
     end
     

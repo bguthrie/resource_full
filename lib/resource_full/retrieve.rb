@@ -10,9 +10,7 @@ module ResourceFull
     
     # Override this to provide custom find conditions.  This is automatically merged at query
     # time with the queried conditions extracted from params.
-    def find_options
-      { :order => "#{model_class.table_name}.created_at DESC" }
-    end
+    def find_options; {}; end
     
     protected
     

@@ -16,7 +16,7 @@ module ResourceFull
         rescue NameError => e
           # Try to recover gracefully if we can't find that particular resource.
           warn e.message
-          target_model = opts[:from].to_s.singularize.classify.constantize
+          target_model = resource.model_class.reflect_on_association(opts[:from]).class_name.constantize
           @table = target_model.table_name
           @from  = target_model.name.underscore
         end

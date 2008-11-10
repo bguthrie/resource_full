@@ -34,7 +34,7 @@ describe "ResourceFull::Render", :type => :controller do
     
     it "creates and renders a new model object with an empty body" do
       put :create, :resource_full_mock_user => { 'first_name' => 'brian' }, :format => 'xml'
-      response.body.strip.should be_empty
+      response.body.should == ResourceFullMockUser.find(:first).to_xml
       ResourceFullMockUser.find(:first).first_name.should == 'brian'
     end
     
@@ -55,6 +55,11 @@ describe "ResourceFull::Render", :type => :controller do
       response.should have_tag("errors") { with_tag("error", "First name can't be blank")}
     end
     
+    it "renders the XML for a new model object" do
+      get :new, :format => 'xml'
+      response.body.should == ResourceFullMockUser.new.to_xml
+    end
+    
     class SomeNonsenseException < Exception; end
     
     it "rescues all unhandled exceptions with an XML response" do
@@ -62,6 +67,13 @@ describe "ResourceFull::Render", :type => :controller do
       get :index, :format => 'xml'
       response.should have_tag("errors") { with_tag("error", "SomeNonsenseException: sparrow farts") }
     end
+    
+    it "retains the generic error 500 when re-rendering unhandled exceptions" do
+      ResourceFullMockUser.expects(:find).raises SomeNonsenseException, "sparrow farts"
+      get :index, :format => 'xml'
+      response.code.should == '500'
+    end
+    
   end
 end
 

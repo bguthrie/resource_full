@@ -220,15 +220,29 @@ describe "ResourceFull::Query", :type => :controller do
   end
   
   describe "with procs" do
-    controller_name "resource_full_users"
-    before :each do
-      ResourceFullUsersController.queryable_params = nil
-    end
+    controller_name "resource_full_mock_users"
     
-    # it "should filter the results of a query based on a proc" do
+    # before :each do
+    #   ResourceFullMockUsersController.queryable_params = nil
+    # end
+    
+    it "should filter the results of a query based on a proc" # do
     #   ResourceFullUsersController.queryable_with :email_address, :sql => "", :joins => [...]
     #   ResourceFullUsersController.queryable_with :email_address do |user|
     #   end
     # end
+  end
+  
+  describe "with nils" do
+    controller_name "resource_full_mock_users"
+    
+    it "should find records when queryable parameter is nil" do
+      ResourceFullMockUsersController.queryable_with :address_id, :allow_nil => true
+      real_user  = ResourceFullMockUser.create! :first_name => "brian", :address_id => nil
+      noise_user = ResourceFullMockUser.create! :first_name => "brian", :address_id => 13
+      
+      get :index, :address_id => nil
+      assigns(:resource_full_mock_users).should == [ real_user ]
+    end
   end
 end

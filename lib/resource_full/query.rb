@@ -19,6 +19,9 @@ module ResourceFull
       #     a valid relationship from this controller's exposed model (e.g., :account if belongs_to :account is specified.)
       #   * :resource_identifier => true : Try to look up the resource controller for this value and honor its
       #     specified resource identifier.  Useful for nesting relationships.
+      #   * :allow_nils => true : Indicates that a nil value for a parameter should be taken to literally indicate
+      #     that null values should be returned.  This may be changed in the future to expect the literal string 'null'
+      #     or some other reasonable standin.
       #
       # Examples:
       #
@@ -31,8 +34,12 @@ module ResourceFull
       def queryable_with(*args)
         opts = args.extract_options!
         self.queryable_params += args.collect do |param|
-          parameter_class = opts[:from] ? ResourceFull::Query::ForeignResourceParameter : ResourceFull::Query::Parameter
-          parameter_class.new(param, self, opts.dup)
+          if opts.has_key?(:from)
+            self.joins << opts[:from]
+            ResourceFull::Query::ForeignResourceParameter.new(param, self, opts.dup)
+          else
+            ResourceFull::Query::Parameter.new(param, self, opts.dup)
+          end
         end
       end
       

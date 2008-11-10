@@ -68,7 +68,12 @@ class ResourceFullMockAddress < ActiveRecord::Base
   belongs_to :resource_full_mock_user
 end
 
-class ResourceFullMocksController < ResourceFull::Base;             end
+class ResourceFullMocksController < ResourceFull::Base
+  # dispatch_spec custom methods spec, approx. line 98
+  def foo
+    render :xml => { :foo => "bar" }.to_xml
+  end
+end
 class ResourceFullSubMocksController < ResourceFullMocksController; end
 class ResourceFullMockUsersController < ResourceFull::Base;         end
 class ResourceFullMockAddressesController < ResourceFull::Base;     end

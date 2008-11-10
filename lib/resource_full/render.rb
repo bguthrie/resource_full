@@ -22,7 +22,7 @@ module ResourceFull
       def create_xml
         self.model_object = send("create_#{model_name}")
         if model_object.valid?
-          head :created, :location => send("#{model_name}_url", model_object.id)
+          render :xml => model_object.to_xml, :status => :created, :location => send("#{model_name}_url", model_object.id)
         else
           render :xml => model_object.errors.to_xml, :status => status_for(model_object.errors)
         end
@@ -83,7 +83,7 @@ module ResourceFull
       def destroy_html
         self.model_object = send("destroy_#{model_name}")
         flash[:info] = "Successfully destroyed #{model_name.humanize} with ID of #{params[:id]}."
-        redirect_to :action => :index, :format => html
+        redirect_to :action => :index, :format => :html
       rescue ActiveRecord::RecordNotFound => e
         flash[:error] = e.message
         redirect_to :back
@@ -109,7 +109,8 @@ module ResourceFull
       
       def handle_generic_exception_with_correct_response_format(exception)
         if request.format.xml?
-          render :xml => exception.to_xml
+          logger.error exception.message + "\n" + exception.clean_backtrace.collect {|s| "\t#{s}\n"}.join
+          render :xml => exception.to_xml, :status => :server_error
         else
           raise exception
         end
