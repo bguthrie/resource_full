@@ -1,4 +1,4 @@
-= ResourceFull
+= ResourceFull 0.5.0
 
 * http://github.com/bguthrie/resource_full/
 
