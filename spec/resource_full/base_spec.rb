@@ -72,7 +72,7 @@ describe ResourceFull::Base, :type => :controller do
   end
   
   it "translates a model name into a controller constant" do
-    ResourceFull::Base.controller_for("users").should == UsersController
+    ResourceFull::Base.controller_for("resource_full_mock_users").should == ResourceFullMockUsersController
   end
   
   it "returns nil if it cannot constantize the requested controller" do
@@ -80,7 +80,7 @@ describe ResourceFull::Base, :type => :controller do
   end
   
   it "returns the controller it's been given if it receives a Class object" do
-    ResourceFull::Base.controller_for(UsersController).should == UsersController
+    ResourceFull::Base.controller_for(ResourceFullMockUsersController).should == ResourceFullMockUsersController
   end
   
   # TODO Don't know if I really need this behavior.
