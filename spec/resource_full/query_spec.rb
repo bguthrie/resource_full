@@ -53,6 +53,12 @@ describe "ResourceFull::Query", :type => :controller do
     assigns(:resource_full_mock_users).should include(*users)
   end
   
+  it "queries multiple values in standard request parameter list format" do
+    controller.class.queryable_with :address_id, :income
+    get :index, :address_id => [ '1', '2' ]
+    assigns(:resource_full_mock_users).should include(*users)
+  end
+  
   it "retrieves objects given pluralized forms of queryable parameters" do
     controller.class.queryable_with :address_id
     get :index, :address_ids => "1,2"

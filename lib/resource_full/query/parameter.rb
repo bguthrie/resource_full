@@ -65,7 +65,8 @@ module ResourceFull
       private
       
         def param_values_for(params)
-          values = (params[self.name] || params[self.name.to_s.pluralize] || '').split(',')
+          values = (params[self.name] || params[self.name.to_s.pluralize] || '')
+          values = values.split(',') unless values.is_a?(Array)
           values.map! {|value| "%#{value}%" } if fuzzy?
           values
         end
