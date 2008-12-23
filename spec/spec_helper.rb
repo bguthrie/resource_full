@@ -22,8 +22,7 @@ Spec::Runner.configure do |config|
       t.string   "state_code"
       t.integer  "zip"
       t.integer  "resource_full_mock_user_id"
-      t.datetime "created_at"
-      t.datetime "updated_at"
+      t.timestamps
     end
 
     ActiveRecord::Base.connection.create_table "resource_full_mock_users", :force => true do |t|
@@ -33,21 +32,27 @@ Spec::Runner.configure do |config|
       t.string   "email"
       t.string   "join_date"
       t.integer  "income"
-      t.integer  "address_id"
-      t.datetime "created_at"
-      t.datetime "updated_at"
+      t.integer  "resource_full_mock_employer_id"
+      t.timestamps
     end
     
-    ActionController::Routing::Routes.draw do |map|
-      map.foo '/foo', :controller => 'resource_full_mocks', :action => 'foo'
-      map.resources :resource_full_mocks
-      map.resources :resource_full_mock_users, :collection => {:count => :get} do |users|
-        users.resources :resource_full_mock_addresses
-      end
-      map.resources :resource_full_sub_mocks
+    ActiveRecord::Base.connection.create_table "resource_full_mock_employers", :force => true do |t|
+      t.string "name"
+      t.string "email"
+      t.timestamps
     end
   end
-  
+end
+
+ActionController::Routing::Routes.draw do |map|
+  map.foo '/foo', :controller => 'resource_full_mocks', :action => 'foo'
+  map.resources :resource_full_mocks, :resource_full_sub_mocks, :resource_full_mock_addresses
+  map.resources :resource_full_mock_users, :collection => {:count => :get} do |users|
+    users.resources :resource_full_mock_addresses
+  end
+  map.resources :resources, :controller => 'resource_full/controllers/resources' do |resource|
+    resource.resources :routes, :controller => 'resource_full/controllers/routes'
+  end
 end
 
 class ResourceFullMock
@@ -56,12 +61,13 @@ end
 class ResourceFullSubMock < ResourceFullMock; end
 
 # TODO Remove these or find a better way to handle ActiveRecord dependencies.
+class ResourceFullMockEmployer < ActiveRecord::Base
+  has_many :resource_full_mock_users
+end
+
 class ResourceFullMockUser < ActiveRecord::Base
-  class << self
-    attr_accessor_with_default :skip_validation, :true
-  end
+  belongs_to :resource_full_mock_employer
   has_many :resource_full_mock_addresses
-  def skip_validation?; self.class.skip_validation; end
 end
 
 class ResourceFullMockAddress < ActiveRecord::Base
@@ -77,6 +83,15 @@ end
 class ResourceFullSubMocksController < ResourceFullMocksController; end
 class ResourceFullMockUsersController < ResourceFull::Base;         end
 class ResourceFullMockAddressesController < ResourceFull::Base;     end
+
+ActionController::Routing.use_controllers! %w{ 
+  resource_full_mock_users 
+  resource_full_mock_addresses 
+  resource_full_mocks
+  resource_full_sub_mocks
+  resource_full/controllers/routes
+  resource_full/controllers/resources
+}
 
 def putsh(stuff); puts ERB::Util.h(stuff) + "<br/>"; end
 def ph(stuff); puts ERB::Util.h(stuff.inspect) + "<br/>"; end

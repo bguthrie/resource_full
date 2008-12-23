@@ -3,11 +3,12 @@ require File.dirname(__FILE__) + '/../spec_helper'
 describe "ResourceFull::Render", :type => :controller do
   controller_name "resource_full_mock_users"
   
+  
   describe "XML" do
     controller_name "resource_full_mock_users"
     
     before :each do
-      ResourceFullMockUser.skip_validation = true
+      controller.use_rails_error_handling! if controller.respond_to?(:use_rails_error_handling!)
       ResourceFullMockUser.delete_all
       ResourceFullMockUsersController.resource_identifier = :id
     end
@@ -49,10 +50,14 @@ describe "ResourceFull::Render", :type => :controller do
     end
     
     it "renders appropriate errors if a model validation fails" do
-      ResourceFullMockUser.validates_presence_of :first_name, :unless => :skip_validation?
-      ResourceFullMockUser.skip_validation = false
+      ResourceFullMockUser.send :define_method, :validate do
+        errors.add :first_name, "can't be blank" if self.first_name.blank?
+      end
+      
       put :create, :resource_full_mock_user => {}, :format => 'xml'
       response.should have_tag("errors") { with_tag("error", "First name can't be blank")}
+      
+      ResourceFullMockUser.send :remove_method, :validate
     end
     
     it "renders the XML for a new model object" do
@@ -68,11 +73,35 @@ describe "ResourceFull::Render", :type => :controller do
       response.should have_tag("errors") { with_tag("error", "SomeNonsenseException: sparrow farts") }
     end
     
+    it "it sends an exception notification email if ExceptionNotifier is enabled and still renders the XML error response" do
+      cleanup = unless defined? ExceptionNotifier
+        module ExceptionNotifier; end
+        module ExceptionNotifiable; end
+        true
+      end
+      
+      ResourceFullMockUsersController.send :include, ExceptionNotifiable
+      ResourceFullMockUser.expects(:find).raises SomeNonsenseException, "sparrow farts"
+      ResourceFullMockUsersController.stubs(:exception_data).returns(nil)
+      ResourceFullMockUsersController.any_instance.stubs(:consider_all_requests_local).returns(false)
+      ResourceFullMockUsersController.any_instance.stubs(:local_request?).returns(false)
+      ExceptionNotifier.expects(:deliver_exception_notification)
+      get :index, :format => 'xml'
+      response.should have_tag("errors") { with_tag("error", "SomeNonsenseException: sparrow farts") }
+      
+      if cleanup
+        Object.send :remove_const, :ExceptionNotifier
+        Object.send :remove_const, :ExceptionNotifiable
+      end
+    end 
+    
     it "retains the generic error 500 when re-rendering unhandled exceptions" do
       ResourceFullMockUser.expects(:find).raises SomeNonsenseException, "sparrow farts"
       get :index, :format => 'xml'
       response.code.should == '500'
     end
+    
+    
     
   end
 end

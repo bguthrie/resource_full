@@ -21,7 +21,9 @@ module ResourceFull
         end
         
         def find_all_routes(opts={})
-          all_named_routes.sort_by(&:name)
+          all_named_routes(opts).reject do |route|
+            opts.has_key?(:resource_id) && opts[:resource_id].to_s != route.resource.to_s
+          end.sort_by {|r| r.name.to_s}
         end
         
         private
@@ -29,8 +31,7 @@ module ResourceFull
           # Translates an AR route into something a little more human-friendly, adding some extra
           # relationships as it goes and cutting out the stuff we're not interested in--for example, 
           # formatted variants of regular routes.
-          def all_named_routes
-            # ActionController::Routing::Routes.named_routes.routes.values.each {|o| ph o}
+          def all_named_routes(opts={})
             @all_named_routes ||= ActionController::Routing::Routes.named_routes.routes.collect do |name, route|
               verb = route.conditions[:method].to_s.upcase
               segs = route.segments.join
@@ -42,7 +43,7 @@ module ResourceFull
                 :controller => route.requirements[:controller]
               )
             end.reject do |route|
-              route.formatted? || !route.resourced? # || (opts[:resource_id] && opts[:resource_id] != route.resource)
+              route.formatted?
             end
           end
           
@@ -55,27 +56,27 @@ module ResourceFull
         @action   = opts[:action]
         @controller = ResourceFull::Base.controller_for(opts[:controller])
       end
-    # 
-    #   def to_xml(opts={})
-    #     {
-    #       :resource => resource,
-    #       :verb => verb,
-    #       :name => name,
-    #       :pattern => pattern,
-    #       :action => action
-    #     }.to_xml(opts.merge(:root => "route"))
-    #   end
-    # 
+    
+      def to_xml(opts={})
+        {
+          :resource => resource,
+          :verb => verb,
+          :name => name,
+          :pattern => pattern,
+          :action => action
+        }.to_xml(opts.merge(:root => "route"))
+      end
+    
       def formatted?
         name.to_s =~ /^formatted/
       end
       
       def resource
-        controller.respond_to?(:model_name) ? controller.model_name : nil
+        controller.controller_name
       end
     
       def resourced?
-        not resource.nil?
+        controller.ancestors.include?(ResourceFull::Base)
       end
     
     end

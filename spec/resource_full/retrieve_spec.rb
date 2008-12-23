@@ -148,16 +148,21 @@ describe "ResourceFull::Retrieve", :type => :controller do
     end
     
     it "limits the query to the correct number of records given that parameter" do
+      ResourceFullMockUsersController.queryable_with :limit, :scope => lambda {|limit| { :limit => limit }}
       get :index, :limit => 2
       assigns(:resource_full_mock_users).should == @users[0..1]
     end
     
     it "offsets the query by the correct number of records" do
+      ResourceFullMockUsersController.queryable_with :limit, :scope => lambda {|limit| { :limit => limit }}
+      ResourceFullMockUsersController.queryable_with :offset, :scope => lambda {|offset| { :offset => offset }}
       get :index, :offset => 4, :limit => 2
       assigns(:resource_full_mock_users).should == @users[4..5]
     end
     
-    it "doesn't attempt to paginate if pagination is disabled" do
+    xit "doesn't attempt to paginate if pagination is disabled" do
+      ResourceFullMockUsersController.queryable_with :limit, :scope => lambda {|limit| { :limit => limit }}
+      ResourceFullMockUsersController.queryable_with :offset, :scope => lambda {|offset| { :offset => offset }}
       ResourceFullMockUsersController.paginatable = false
       get :index, :offset => 4, :limit => 2
       assigns(:resource_full_mock_users).should == @users

@@ -1,4 +1,6 @@
 module ResourceFull
+  class ResourceNotFound < Exception; end
+  
   class Base < ActionController::Base  
     session :off, :if => lambda { |request| request.format.xml? || request.format.json? }
 
@@ -17,12 +19,11 @@ module ResourceFull
       
       # Returns the controller for the given resource.
       def controller_for(resource)
-        return resource if resource.is_a?(Class)
+        return resource if resource.is_a?(Class) && resource.ancestors.include?(ActionController::Base)
         "#{resource.to_s.underscore}_controller".classify.constantize
       rescue NameError
-        nil
+        raise ResourceFull::ResourceNotFound, "not found: #{resource}"
       end
-      alias_method :[], :controller_for
       
       private
       
@@ -40,8 +41,8 @@ module ResourceFull
   end
 
   module ClassMethods
-    attr_accessor_with_default :resource_identifier, :id
     attr_accessor_with_default :paginatable, true
+    attr_accessor_with_default :resource_identifier, :id
     
     # Returns true if this resource is paginatable, which is to say, it recognizes and honors
     # the :limit and :offset parameters if present in a query.  True by default.
@@ -97,17 +98,23 @@ module ResourceFull
       @model_class = model_class.to_s.singularize.camelize.constantize
       alias_retrieval_methods!
     end
-    
+        
     # Renders the resource as XML.
     def to_xml(opts={})
-      { :name       => self.model_name,
+      { :name       => self.controller_name,
         :parameters => self.queryable_params,
-        :identifier => self.resource_identifier
+        :identifier => self.xml_identifier
       }.to_xml(opts.merge(:root => "resource"))
     end
+    
+    protected
+    
+      def xml_identifier
+        (self.resource_identifier.is_a?(Proc) ? self.resource_identifier.call(nil) : self.resource_identifier).to_s
+      end
         
     private
-    
+        
       def alias_retrieval_methods!
         define_method("new_#{model_name}")                 { new_model_object }
         define_method("find_#{model_name}")                { find_model_object }

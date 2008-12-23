@@ -6,10 +6,11 @@ describe "ResourceFull::Query", :type => :controller do
   before :all do
     ResourceFullMockUser.delete_all
     @users = [
-      ResourceFullMockUser.create!(:address_id => 1, :income => 70_000, :first_name => "guybrush"),
-      ResourceFullMockUser.create!(:address_id => 1, :income => 30_000, :first_name => "toothbrush"),
-      ResourceFullMockUser.create!(:address_id => 2, :income => 70_000, :first_name => "guthrie"),
+      ResourceFullMockUser.create!(:resource_full_mock_employer_id => 1, :income => 70_000, :first_name => "guybrush"),
+      ResourceFullMockUser.create!(:resource_full_mock_employer_id => 1, :income => 30_000, :first_name => "toothbrush"),
+      ResourceFullMockUser.create!(:resource_full_mock_employer_id => 2, :income => 70_000, :first_name => "guthrie"),
     ]
+    @guybrush, @toothbrush, @guthrie = @users
   end
   attr_reader :users
   
@@ -17,51 +18,49 @@ describe "ResourceFull::Query", :type => :controller do
     ResourceFullMockUsersController.queryable_params = nil
   end
   
-  it "allows you to specify a method that filters the returned list"
-  
   it "isn't queryable on any parameters by default" do
     controller.class.queryable_params.should be_empty
   end
   
   it "allows you to specify queryable parameters" do
-    controller.class.queryable_with :address_id, :income
-    controller.class.queryable_params.collect(&:name).should include(:address_id, :income)
+    controller.class.queryable_with :resource_full_mock_employer_id, :income
+    controller.class.queryable_params.collect(&:name).should include(:resource_full_mock_employer_id, :income)
   end
   
   it "retrieves objects based on a queried condition" do
-    controller.class.queryable_with :address_id
-    get :index, :address_id => 1
+    controller.class.queryable_with :resource_full_mock_employer_id
+    get :index, :resource_full_mock_employer_id => 1
     assigns(:resource_full_mock_users).should include(users[0], users[1])
     assigns(:resource_full_mock_users).should_not include(users[2])
   end
   
   it "retrieves no objects if the queried condition is not matched" do
-    controller.class.queryable_with :address_id
-    get :index, :address_id => 3
+    controller.class.queryable_with :resource_full_mock_employer_id
+    get :index, :resource_full_mock_employer_id => 3
     assigns(:resource_full_mock_users).should be_empty
   end
   
   it "queries on the intersection of multiple conditions" do
-    controller.class.queryable_with :address_id, :income
-    get :index, :address_id => 1, :income => 70_000
+    controller.class.queryable_with :resource_full_mock_employer_id, :income
+    get :index, :resource_full_mock_employer_id => 1, :income => 70_000
     assigns(:resource_full_mock_users).should == [ users[0] ]
   end
   
   it "queries multiple values in a comma-separated list" do
-    controller.class.queryable_with :address_id, :income
-    get :index, :address_id => "1,2"
+    controller.class.queryable_with :resource_full_mock_employer_id, :income
+    get :index, :resource_full_mock_employer_id => "1,2"
     assigns(:resource_full_mock_users).should include(*users)
   end
   
   it "queries multiple values in standard request parameter list format" do
-    controller.class.queryable_with :address_id, :income
-    get :index, :address_id => [ '1', '2' ]
+    controller.class.queryable_with :resource_full_mock_employer_id, :income
+    get :index, :resource_full_mock_employer_id => [ '1', '2' ]
     assigns(:resource_full_mock_users).should include(*users)
   end
   
   it "retrieves objects given pluralized forms of queryable parameters" do
-    controller.class.queryable_with :address_id
-    get :index, :address_ids => "1,2"
+    controller.class.queryable_with :resource_full_mock_employer_id
+    get :index, :resource_full_mock_employer_ids => "1,2"
     assigns(:resource_full_mock_users).should include(*users)
   end
   
@@ -73,37 +72,90 @@ describe "ResourceFull::Query", :type => :controller do
   end
   
   it "allows a queryable parameter to map to a different column" do
-    controller.class.queryable_with :address, :column => :address_id
+    controller.class.queryable_with :address, :column => :resource_full_mock_employer_id
     get :index, :address => 1
     assigns(:resource_full_mock_users).should include(users[0], users[1])
     assigns(:resource_full_mock_users).should_not include(users[2])
   end
   
   it "appends to rather than replaces queryable values" do
-    controller.class.queryable_with :address_id
+    controller.class.queryable_with :resource_full_mock_employer_id
     controller.class.queryable_with :income
     
-    get :index, :address_id => 1, :income => 70_000
+    get :index, :resource_full_mock_employer_id => 1, :income => 70_000
     assigns(:resource_full_mock_users).should include(users[0])
     assigns(:resource_full_mock_users).should_not include(users[1], users[2])
   end
   
   it "counts all objects if there are no parameters" do
-    controller.class.queryable_with :address_id
+    controller.class.queryable_with :resource_full_mock_employer_id
     get :count
     Hash.from_xml(response.body)['count'].to_i.should == 3
   end
   
   it "counts the requested objects if there are paramters" do
-    controller.class.queryable_with :address_id
-    get :count, :address_id => 1
+    controller.class.queryable_with :resource_full_mock_employer_id
+    get :count, :resource_full_mock_employer_id => 1
     Hash.from_xml(response.body)['count'].to_i.should == 2
   end
 
   it "counts no objects if there are none with the requested parameters" do
-    controller.class.queryable_with :address_id
-    get :count, :address_id => 15
+    controller.class.queryable_with :resource_full_mock_employer_id
+    get :count, :resource_full_mock_employer_id => 15
     Hash.from_xml(response.body)['count'].to_i.should == 0
+  end
+  
+  it "negates a single queried value" do
+    ResourceFullMockUsersController.queryable_with :not_resource_full_mock_employer_id, :negated => true, :column => :resource_full_mock_employer_id
+    
+    get :index, :not_resource_full_mock_employer_id => 2
+    assigns(:resource_full_mock_users).should include(users[0], users[1])
+    assigns(:resource_full_mock_users).should_not include(users[2])
+  end
+  
+  it "negates multiple queried values" do
+    ResourceFullMockUsersController.queryable_with :not_resource_full_mock_employer_id, :negated => true, :column => :resource_full_mock_employer_id
+    
+    get :index, :not_resource_full_mock_employer_id => [1, 2]
+    assigns(:resource_full_mock_users).should be_empty
+  end
+  
+  it "negates a fuzzy string value" do
+    ResourceFullMockUsersController.queryable_with :not_first_name, :negated => true, :column => :first_name, :fuzzy => true
+    
+    get :index, :not_first_name => "brush"
+    assigns(:resource_full_mock_users).should include(@guthrie)
+    assigns(:resource_full_mock_users).should_not include(@guybrush, @toothbrush)
+  end
+  
+  it "negates a queried value with a column defined by a proc" do
+    ResourceFullMockUsersController.queryable_with :not_resource_full_mock_employer_id, :negated => true, :column => lambda {|id| :resource_full_mock_employer_id}
+    
+    get :index, :not_resource_full_mock_employer_id => 2
+    assigns(:resource_full_mock_users).should include(users[0], users[1])
+    assigns(:resource_full_mock_users).should_not include(users[2])
+  end
+  
+  it "negates a queried value and returns all records for which the value is null" do
+    ResourceFullMockUsersController.queryable_with :not_resource_full_mock_employer_id, :negated => true, :column => :resource_full_mock_employer_id
+    null_user = ResourceFullMockUser.create!
+    
+    get :index, :not_resource_full_mock_employer_id => [1, 2]
+    assigns(:resource_full_mock_users).should == [ null_user ]
+  end
+  
+  it "allows you to specify a default value, which it uses if there is no explicit value given for that parameter" do
+    ResourceFullMockUsersController.queryable_with :first_name, :default => "guybrush"
+    
+    get :index
+    assigns(:resource_full_mock_users).should == [ @guybrush ]
+  end
+  
+  it "allows you to override the default value if an explicit value is specified" do
+    ResourceFullMockUsersController.queryable_with :first_name, :default => "guybrush"
+    
+    get :index, :first_name => "toothbrush"
+    assigns(:resource_full_mock_users).should == [ @toothbrush ]
   end
   
   describe "with multiple columns" do
@@ -155,7 +207,7 @@ describe "ResourceFull::Query", :type => :controller do
       @invalid_address = invalid_user.resource_full_mock_addresses.create!
       
       ResourceFullMockUsersController.resource_identifier = :id
-      ResourceFullMockAddressesController.queryable_params = nil
+      ResourceFullMockAddressesController.clear_queryable_params!
     end
     attr_reader :user, :valid_addresses, :invalid_address
     
@@ -185,6 +237,22 @@ describe "ResourceFull::Query", :type => :controller do
       assigns(:resource_full_mock_addresses).should_not include(invalid_address)
     end
     
+    it "filters addresses by the Employer resource by specifying a table name and ensuring that the intermediate User resource is included in the query" do
+      employer = ResourceFullMockEmployer.create! :name => "Melee Island Dept. of Piracy"
+      @user.update_attributes :resource_full_mock_employer => employer
+      ResourceFullMockEmployer.create! :name => "Kingdom of Phatt Island"
+      
+      ResourceFullMockAddressesController.queryable_with :resource_full_mock_employer_name, 
+        :from => { :resource_full_mock_user => :resource_full_mock_employer }, 
+        :table => 'resource_full_mock_employers',
+        :column => :name,
+        :fuzzy => true
+        
+      get :index, :resource_full_mock_employer_name => "Melee"
+      assigns(:resource_full_mock_addresses).should include(*valid_addresses)
+      assigns(:resource_full_mock_addresses).should_not include(invalid_address)
+    end
+        
     # TODO This is perhaps not the best place for this test.  
     it "filters addresses by the User resource identifer if a controller is said to nest within another controller" do
       ResourceFullMockUsersController.resource_identifier = :email
@@ -225,30 +293,170 @@ describe "ResourceFull::Query", :type => :controller do
     end
   end
   
-  describe "with procs" do
+  describe "with named scope" do
     controller_name "resource_full_mock_users"
     
-    # before :each do
-    #   ResourceFullMockUsersController.queryable_params = nil
-    # end
+    it "filters parameter values using the given named scope method if no parameters are given" do
+      ResourceFullMockUsersController.queryable_with :born_today, :scope => :born_today
+      ResourceFullMockUser.named_scope :born_today, :conditions => { :birthdate => Date.today }
+      
+      real_user  = ResourceFullMockUser.create! :birthdate => Date.today
+      noise_user = ResourceFullMockUser.create! :birthdate => Date.yesterday
+      
+      get :index, :format => 'xml', :born_today => true
+      
+      assigns(:resource_full_mock_users).should == [ real_user ]
+    end
     
-    it "should filter the results of a query based on a proc" # do
-    #   ResourceFullUsersController.queryable_with :email_address, :sql => "", :joins => [...]
-    #   ResourceFullUsersController.queryable_with :email_address do |user|
-    #   end
-    # end
+    it "filters parameter values using the given named scope proc if no parameters are given" do
+      ResourceFullMockUsersController.queryable_with :born_today, :scope => lambda { {:conditions => { :birthdate => Date.today } } }
+      
+      real_user  = ResourceFullMockUser.create! :birthdate => Date.today
+      noise_user = ResourceFullMockUser.create! :birthdate => Date.yesterday
+      
+      get :index, :format => 'xml', :born_today => true
+      
+      assigns(:resource_full_mock_users).should == [ real_user ]
+    end
+    
+    it "filters parameter values using the given named scope hash if no parameters are given" do
+      ResourceFullMockUsersController.queryable_with :born_today, :scope => { :conditions => { :birthdate => Date.today } }
+      
+      real_user  = ResourceFullMockUser.create! :birthdate => Date.today
+      noise_user = ResourceFullMockUser.create! :birthdate => Date.yesterday
+      
+      get :index, :format => 'xml', :born_today => true
+      
+      assigns(:resource_full_mock_users).should == [ real_user ]
+    end
+    
+    it "filters parameter values using the given named scope method if a parameter is given" do
+      ResourceFullMockUser.named_scope :named, lambda { |name| { :conditions => { :first_name => name } } }
+      ResourceFullMockUsersController.queryable_with :named, :scope => :named
+      
+      real_user  = ResourceFullMockUser.create! :first_name => "Guybrush"
+      noise_user = ResourceFullMockUser.create! :first_name => "Toothbrush"
+      
+      get :index, :format => 'xml', :named => "Guybrush"
+      
+      assigns(:resource_full_mock_users).should == ResourceFullMockUser.named("Guybrush")
+    end
+    
+    it "filters parameter values fuzzily using the given named scope method if a parameter is given and fuzzy is specified" do
+      ResourceFullMockUser.named_scope :named, lambda { |name| { :conditions => { :first_name => name } } }
+      ResourceFullMockUsersController.queryable_with :named, :scope => :named, :fuzzy => true
+      
+      real_user  = ResourceFullMockUser.create! :first_name => "Guybrush"
+      noise_user = ResourceFullMockUser.create! :first_name => "Toothbrush"
+      
+      get :index, :format => 'xml', :named => "brush"
+      
+      assigns(:resource_full_mock_users).should == ResourceFullMockUser.named("%brush%")
+    end
+    
+    it "filters parameter values using multiple named scopes by chaining them together" do
+      ResourceFullMockUsersController.queryable_with :born_today,     :scope => :born_today
+      ResourceFullMockUsersController.queryable_with :named_guybrush, :scope => :named_guybrush
+      
+      ResourceFullMockUser.named_scope :born_today,     :conditions => { :birthdate => Date.today }
+      ResourceFullMockUser.named_scope :named_guybrush, :conditions => { :first_name => "Guybrush" }
+      
+      real_user         = ResourceFullMockUser.create! :birthdate => Date.today, :first_name => "Guybrush"
+      yesterday_user    = ResourceFullMockUser.create! :birthdate => Date.yesterday, :first_name => "Guybrush"
+      toothbrush_user   = ResourceFullMockUser.create! :birthdate => Date.today, :first_name => "Toothbrush"
+
+      get :index, :format => 'xml', :born_today => true, :named_guybrush => true
+      
+      assigns(:resource_full_mock_users).should == ResourceFullMockUser.born_today.named_guybrush
+    end
+    
+    # I know this works experimentally but have yet to write the test.
+    it "combines named scope filters with standard queryable_with parameter filters"
   end
   
   describe "with nils" do
     controller_name "resource_full_mock_users"
     
-    it "should find records when queryable parameter is nil" do
-      ResourceFullMockUsersController.queryable_with :address_id, :allow_nil => true
-      real_user  = ResourceFullMockUser.create! :first_name => "brian", :address_id => nil
-      noise_user = ResourceFullMockUser.create! :first_name => "brian", :address_id => 13
+    before :each do
+      ResourceFullMockUser.delete_all
+    end
+    
+    it "finds records when an allow_nil queryable parameter is blank" do
+      ResourceFullMockUsersController.queryable_with :resource_full_mock_employer_id, :allow_nil => true
+      real_user  = ResourceFullMockUser.create! :first_name => "brian", :resource_full_mock_employer_id => nil
+      noise_user = ResourceFullMockUser.create! :first_name => "brian", :resource_full_mock_employer_id => 13
       
-      get :index, :address_id => nil
+      get :index, :resource_full_mock_employer_id => nil
+      assigns(:resource_full_mock_users).should == [ real_user ]
+    end
+    
+    it "finds records when an allow_nil queryable parameter contains a value" do
+      ResourceFullMockUsersController.queryable_with :resource_full_mock_employer_id, :allow_nil => true
+      real_user  = ResourceFullMockUser.create! :first_name => "brian", :resource_full_mock_employer_id => 13
+      nil_user   = ResourceFullMockUser.create! :first_name => "brian", :resource_full_mock_employer_id => nil
+      wrong_user = ResourceFullMockUser.create! :first_name => "brian", :resource_full_mock_employer_id => 16
+      
+      get :index, :resource_full_mock_employer_id => 13
       assigns(:resource_full_mock_users).should == [ real_user ]
     end
   end
+  
+  describe "with sorting" do
+    controller_name "resource_full_mock_users"
+
+    before :each do
+      ResourceFullMockUsersController.queryable_with_order
+      ResourceFullMockUser.delete_all
+      
+      initech = ResourceFullMockEmployer.create! :name => "Initech", :email => "whatsbestforthecompany@initech.com"
+      tworks  = ResourceFullMockEmployer.create! :name => "ThoughtWorks", :email => "info@thoughtworks.com"
+      
+      eve     = ResourceFullMockUser.create! :first_name => "Eve",   :resource_full_mock_employer => initech, :email => "eve@initech.com"
+      alice   = ResourceFullMockUser.create! :first_name => "Alice", :resource_full_mock_employer => initech, :email => "alice@initech.com"
+      bob     = ResourceFullMockUser.create! :first_name => "Bob",   :resource_full_mock_employer => tworks,  :email => "bob@thoughtworks.com"
+
+      @ordered_list = [ alice, bob, eve ]
+      @company_ordered_list = [ bob, eve, alice ]
+    end
+
+    it "should be sortable by the given parameter, in ascending order by default" do    
+      get :index, :order_by => "first_name"
+      assigns(:resource_full_mock_users).should == @ordered_list
+    end
+
+    it "should be sortable by the given parameter in descending order" do
+      get :index, :order_by => "first_name", :order_direction => "desc"
+      assigns(:resource_full_mock_users).should == @ordered_list.reverse    
+    end
+    
+    it "should not blow up if no order by key is given" do
+      lambda do
+        get :index
+      end.should_not raise_error(ActiveRecord::StatementInvalid)
+    end
+    
+    it "should sort the column with the same table as the resource if no explicit table name is given" do
+      ResourceFullMockUsersController.queryable_with :foo, :scope => { :include => :resource_full_mock_employer }, :default => true
+      lambda do
+        get :index, :order_by => "email"
+      end.should_not raise_error(ActiveRecord::StatementInvalid)
+      assigns(:resource_full_mock_users).should == @ordered_list
+    end
+    
+    it "should sort the column with the table name corresponding to the given table name" do
+      ResourceFullMockUsersController.queryable_with :foo, :scope => { :include => :resource_full_mock_employer }, :default => true
+      ResourceFullMockUsersController.orderable_by :email, :from => :resource_full_mock_employer
+      
+      get :index, :order_by => "email"
+      assigns(:resource_full_mock_users).first.email.should == "bob@thoughtworks.com"
+    end
+    
+    it "should be sortable by the given parameter using the given column" do
+      ResourceFullMockUsersController.orderable_by :employer_email, :from => :resource_full_mock_employer, :column => 'email'
+      
+      get :index, :order_by => "employer_email"
+      assigns(:resource_full_mock_users).first.email.should == "bob@thoughtworks.com"
+    end
+  end
+  
 end

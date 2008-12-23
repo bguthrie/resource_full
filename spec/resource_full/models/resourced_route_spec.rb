@@ -1,14 +1,13 @@
 require File.dirname(__FILE__) + '/../../spec_helper'
 
 module ResourceFull
-  module Models
-    
+  module Models    
     describe ResourcedRoute do
       it "has a verb, name, pattern, and action" do
-        ResourcedRoute.new(:verb => "GET").verb.should == "GET"
-        ResourcedRoute.new(:name => "users").name.should == "users"
-        ResourcedRoute.new(:pattern => "/users").pattern.should == "/users"
-        ResourcedRoute.new(:action => "index").action.should == "index"
+        ResourcedRoute.new(:controller => "resource_full_mock_users", :verb => "GET").verb.should == "GET"
+        ResourcedRoute.new(:controller => "resource_full_mock_users", :name => "users").name.should == "users"
+        ResourcedRoute.new(:controller => "resource_full_mock_users", :pattern => "/users").pattern.should == "/users"
+        ResourcedRoute.new(:controller => "resource_full_mock_users", :action => "index").action.should == "index"
       end
       
       it "has an associated controller derived from the given string" do
@@ -20,15 +19,17 @@ module ResourceFull
       end
       
       it "should know if it's a formatted route" do
-        ResourcedRoute.new(:name => "formatted_resource_full_mock_users").should be_formatted
+        ResourcedRoute.new(:controller => "resource_full_mock_users", :name => "formatted_resource_full_mock_users").should be_formatted
       end
       
+      class DumbController < ActionController::Base; end
+      
       it "should know if it's a resourced route" do
-        ResourcedRoute.new(:resource => nil).should_not be_resourced
+        ResourcedRoute.new(:controller => DumbController).should_not be_resourced
       end
       
       it "should know how to look up its resource" do
-        ResourcedRoute.new(:controller => ResourceFullMockUsersController).resource.should == "resource_full_mock_user"
+        ResourcedRoute.new(:controller => ResourceFullMockUsersController).resource.should == "resource_full_mock_users"
       end
   
       describe "query" do
@@ -46,7 +47,15 @@ module ResourceFull
           route.controller.should == ResourceFullMockUsersController
         end
         
-        it "locates all named routes"
+        it "locates all named routes" do
+          ResourcedRoute.find(:all).collect(&:name).should include(:resource_full_mock_users, :new_resource_full_mock_user, :resource_full_mock_addresses)
+        end
+        
+        it "should filter by a particular resource" do
+          route_names = ResourcedRoute.find(:all, :resource_id => "resource_full_mock_users").collect(&:name)
+          route_names.should include(:resource_full_mock_users)
+          route_names.should_not include(:resource_full_mock_addresses)
+        end
       end
     end
   end

@@ -10,7 +10,6 @@ Spec::Rake::SpecTask.new do |t|
 end
 
 require 'rcov/version'
-puts Rcov::VERSION
 
 Rcov::RcovTask.new do |t|
   t.pattern = "spec/**/_spec.rb"

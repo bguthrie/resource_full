@@ -109,6 +109,17 @@ module ResourceFull
       
       def handle_generic_exception_with_correct_response_format(exception)
         if request.format.xml?
+          if defined?(ExceptionNotifiable) && defined?(ExceptionNotifier) && self.is_a?(ExceptionNotifiable) && !(consider_all_requests_local || local_request?)
+            deliverer = self.class.exception_data
+             data = case deliverer
+               when nil then {}
+               when Symbol then send(deliverer)
+               when Proc then deliverer.call(self)
+             end
+          
+             ExceptionNotifier.deliver_exception_notification(exception, self,
+               request, data)
+          end
           logger.error exception.message + "\n" + exception.clean_backtrace.collect {|s| "\t#{s}\n"}.join
           render :xml => exception.to_xml, :status => :server_error
         else

@@ -40,20 +40,12 @@ module ResourceFull
       model_class.destroy_all(resource_identifier => params[:id])
     end
   
-    def find_all_model_objects(reload=false)
-      model_class.find(:all, find_options_and_query_conditions)
+    def find_all_model_objects
+      completed_query.find(:all)
     end
     
     def count_all_model_objects
-      model_class.count(find_options_and_query_conditions)
-    end
-    
-    def find_options_and_query_conditions
-      returning(find_options) do |opts|
-        opts.merge!(:conditions => queried_conditions) unless queried_conditions.empty?
-        opts.merge!(:include    => self.class.joins) unless self.class.joins.empty?
-        opts.merge!(params.slice(:limit, :offset).symbolize_keys) if self.class.paginatable?
-      end
+      completed_query.count
     end
     
     def move_queryable_params_into_model_params_on_create
@@ -65,6 +57,12 @@ module ResourceFull
     end
     
     private
+    
+      def completed_query
+        self.class.queryable_params.inject(model_class) do |finder, queryer|
+          queryer.find finder, params
+        end
+      end
     
       def resource_identifier
         returning(self.class.resource_identifier) do |column|
