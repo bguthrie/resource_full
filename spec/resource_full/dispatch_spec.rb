@@ -21,13 +21,18 @@ describe "ResourceFull::Dispatch", :type => :controller do
       get :index, :format => 'xml'
     end
   
+    it "dispatches to index_json render method if json is requested" do
+      controller.expects(:index_json)
+      get :index, :format => 'json'
+    end
+
     it "dispatches to index_html render method if html is requested" do  
       controller.expects(:index_html)
       get :index, :format => 'html'
     end
   
     it "raises a 406 error if it does not respond to a format for which no methods are included" do
-      get :index, :format => 'json'
+      get :index, :format => 'txt'
       response.code.should == '406'
     end
   

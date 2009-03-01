@@ -5,6 +5,58 @@ module ResourceFull
     end
     
     protected
+      def json_class_name(obj)
+        obj.class.name.demodulize.underscore
+      end
+      def show_json
+        raise if $raise
+        self.model_object = send("find_#{model_name}")
+          render :json => model_object.to_json
+      rescue ActiveRecord::RecordNotFound => e
+        render :json => e.to_json , :status => :not_found
+      end
+    
+      def index_json
+        self.model_objects = send("find_all_#{model_name.pluralize}")
+        render :json => model_objects.to_json
+      end
+    
+      def create_json
+        self.model_object = send("create_#{model_name}")
+        if model_object.valid?
+          render :json => model_object.to_json, :status => :created, :location => send("#{model_name}_url", model_object.id)
+        else
+          json_data = model_object.attributes
+          json_data[:errors] = {:list => model_object.errors,
+                               :full_messages => model_object.errors.full_messages}
+          render :json => {json_class_name(model_object) => json_data}.to_json , :status => status_for(model_object.errors)
+        end
+      end
+    
+      def update_json
+        self.model_object = send("update_#{model_name}")      
+        if model_object.valid?
+          render :json => model_object.to_json
+        else
+          json_data = model_object.attributes
+          json_data[:errors] = {:list => model_object.errors,
+                               :full_messages => model_object.errors.full_messages}
+          render :json => {json_class_name(model_object) => json_data}.to_json , :status => status_for(model_object.errors)
+        end
+      rescue ActiveRecord::RecordNotFound => e
+        render :json => e.to_json , :status => :not_found
+      end
+    
+      def destroy_json
+        self.model_object = send("destroy_#{model_name}")
+        head :ok
+      rescue ActiveRecord::RecordNotFound => e
+        render :json => e.to_json , :status => :not_found
+      end
+      
+      def new_json
+        render :json => send("new_#{model_name}").to_json
+      end
     
       def show_xml
         raise if $raise
@@ -96,7 +148,11 @@ module ResourceFull
     private
   
       CONFLICT_MESSAGE = if defined?(ActiveRecord::Errors) 
-        ActiveRecord::Errors.default_error_messages[:taken]
+        if ([Rails::VERSION::MAJOR, Rails::VERSION::MINOR] <=> [2,1]) >= 0 # if the rails version is 2.1 or greater...Í
+          (I18n.translate 'activerecord.errors.messages')[:taken]
+        else
+          ActiveRecord::Errors.default_error_messages[:taken]
+        end
       else 
         "has already been taken"
       end
@@ -122,6 +178,20 @@ module ResourceFull
           end
           logger.error exception.message + "\n" + exception.clean_backtrace.collect {|s| "\t#{s}\n"}.join
           render :xml => exception.to_xml, :status => :server_error
+        elsif request.format.json?
+          if defined?(ExceptionNotifiable) && defined?(ExceptionNotifier) && self.is_a?(ExceptionNotifiable) && !(consider_all_requests_local || local_request?)
+            deliverer = self.class.exception_data
+             data = case deliverer
+               when nil then {}
+               when Symbol then send(deliverer)
+               when Proc then deliverer.call(self)
+             end
+          
+             ExceptionNotifier.deliver_exception_notification(exception, self,
+               request, data)
+          end
+          logger.error exception.message + "\n" + exception.clean_backtrace.collect {|s| "\t#{s}\n"}.join
+          render :json => exception.to_json, :status => :server_error
         else
           raise exception
         end
