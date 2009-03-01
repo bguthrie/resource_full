@@ -10,7 +10,7 @@ module ResourceFull
     end
     
     module ClassMethods
-      DEFAULT_FORMATS = [ :xml, :html ]
+      DEFAULT_FORMATS = [ :xml, :html, :json ]
       
       CRUD_METHODS_TO_ACTIONS = {
         :create => [ :create, :new ],
