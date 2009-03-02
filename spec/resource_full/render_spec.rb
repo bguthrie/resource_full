@@ -13,13 +13,15 @@ describe "ResourceFull::Render", :type => :controller do
       ResourceFullMockUsersController.resource_identifier = :id
     end
   
-    it "renders the model object" do
-      user = ResourceFullMockUser.create!
-      get :show, :id => user.id, :format => 'json'
-      user.to_json.should == response.body
-      hash = Hash.from_json(response.body)
-      hash["resource_full_mock_user"].should_not be_nil
-      response.code.should == '200'
+    if ([Rails::VERSION::MAJOR, Rails::VERSION::MINOR] <=> [2,1]) >= 0 # if the rails version is 2.1 or greater...Í
+      it "renders the model object" do
+        user = ResourceFullMockUser.create!
+        get :show, :id => user.id, :format => 'json'
+        user.to_json.should == response.body
+        hash = Hash.from_json(response.body)
+        hash["resource_full_mock_user"].should_not be_nil
+        response.code.should == '200'
+      end
     end
     
     it "renders the appropriate error message if it can't find the model object" do
