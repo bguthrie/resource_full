@@ -214,20 +214,33 @@ module ResourceFull
         request_params.has_key?(:order_by)
       end
       
+      def natural_sort_for(opts)
+        if opts.has_key?(:natural_sort)
+          opts[:natural_sort]
+        else
+          false
+        end
+      end
+  
       def find(finder, request_params)
         return finder unless applicable_to?(request_params)
-        
+    
         order_by = request_params[:order_by]
         order_direction = request_params[:order_direction] || "asc"
         sort_params = resource.orderables[order_by.to_sym] || {}
         table = table_for(sort_params)
         column = sort_params[:column] || order_by
-        
+    
         order_params = returning({}) do |hash|
           hash[:include] = sort_params[:from]
         end
-        
-        finder.scoped order_params.merge( :order => "#{table}.#{column} #{order_direction}" )
+    
+        if natural_sort_for(sort_params)
+          # to use this natural sort you must follow these instructions: http://www.ciarpame.com/2008/06/28/true-mysql-natural-order-by-trick/
+          finder.scoped order_params.merge( :order => "natsort_canon(#{table}.#{column}, 'natural') #{order_direction}" )
+        else
+          finder.scoped order_params.merge( :order => "#{table}.#{column} #{order_direction}" )
+        end
       end
       
       def subclass(new_resource)
