@@ -9,6 +9,7 @@ module ResourceFull
           xml.error self.backtrace
         }
       end
+      
       def to_json(opts={})
         {"error" => {:text => "#{self.class}: #{self.to_s}",
                      :backtrace => self.backtrace}}.to_json

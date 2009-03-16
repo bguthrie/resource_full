@@ -10,11 +10,9 @@ module ResourceFull
           :fuzzy => true, 
           :columns => [:full_name, :username, :email]
         ).to_xml
-    
-        xml.should have_tag("parameter") do
-          with_tag("fuzzy", "true")
-          with_tag("name", "name")
-        end
+                
+        Hash.from_xml(xml)["parameter"]["fuzzy"].should be_true
+        Hash.from_xml(xml)["parameter"]["name"].should == "name"
       end
   
       describe "inferring the correct table" do
