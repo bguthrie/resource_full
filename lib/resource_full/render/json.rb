@@ -21,7 +21,7 @@ module ResourceFull
 
       def create_json
         self.model_object = send("create_#{model_name}")
-        if model_object.valid?
+        if model_object.errors.empty?
           render :json => model_object.to_json, :status => :created, :location => send("#{model_name}_url", model_object.id)
         else
           json_data = model_object.attributes
@@ -33,7 +33,7 @@ module ResourceFull
 
       def update_json
         self.model_object = send("update_#{model_name}")      
-        if model_object.valid?
+        if model_object.errors.empty?
           render :json => model_object.to_json
         else
           json_data = model_object.attributes

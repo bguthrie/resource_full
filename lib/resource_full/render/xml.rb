@@ -17,7 +17,7 @@ module ResourceFull
 
       def create_xml
         self.model_object = send("create_#{model_name}")
-        if model_object.valid?
+        if model_object.errors.empty?
           render :xml => model_object.to_xml, :status => :created, :location => send("#{model_name}_url", model_object.id)
         else
           render :xml => model_object.errors.to_xml, :status => status_for(model_object.errors)
@@ -26,7 +26,7 @@ module ResourceFull
 
       def update_xml
         self.model_object = send("update_#{model_name}")      
-        if model_object.valid?
+        if model_object.errors.empty?
           render :xml => model_object.to_xml
         else
           render :xml => model_object.errors.to_xml, :status => status_for(model_object.errors)

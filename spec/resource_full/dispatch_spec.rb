@@ -151,13 +151,13 @@ describe "ResourceFull::Dispatch", :type => :controller do
     controller_name "resource_full_mocks"
     
     it "sets a @mock instance variable based on the default creator" do
-      ResourceFullMock.stubs(:create).returns stub(:valid? => true, :id => :mock)
+      ResourceFullMock.stubs(:create).returns stub(:errors => stub_everything, :id => :mock)
       post :create, :format => 'html'
       assigns(:resource_full_mock).id.should == :mock
     end
     
     it "sets a @mock instance variable appropriately if the default creator is overridden" do
-      ResourceFullMock.stubs(:super_create).returns stub(:valid? => true, :id => :super_mock)
+      ResourceFullMock.stubs(:super_create).returns stub(:errors => stub_everything, :id => :super_mock)
       controller.class.class_eval do
         def create_resource_full_mock; ResourceFullMock.super_create; end
       end
@@ -170,13 +170,13 @@ describe "ResourceFull::Dispatch", :type => :controller do
     controller_name "resource_full_mocks"
     
     it "sets a @mock instance variable based on the default updater" do
-      ResourceFullMock.stubs(:find).returns stub(:id => 1, :update_attributes => true, :valid? => true)
+      ResourceFullMock.stubs(:find).returns stub(:id => 1, :update_attributes => true, :errors => stub_everything)
       put :update, :id => 1, :format => 'html'
       assigns(:resource_full_mock).id.should == 1
     end
     
     it "sets a @mock instance variable appropriately if the default updater is overridden" do
-      ResourceFullMock.stubs(:super_update).returns stub(:valid? => true, :id => :super_mock)
+      ResourceFullMock.stubs(:super_update).returns stub(:errors => stub_everything, :id => :super_mock)
       controller.class.class_eval do
         def update_resource_full_mock; ResourceFullMock.super_update; end
       end
