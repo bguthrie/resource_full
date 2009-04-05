@@ -41,7 +41,7 @@ module ResourceFull
         
         it "locates a particular named route" do
           route = ResourcedRoute.find :resource_full_mock_users
-          route.pattern.should == "/resource_full_mock_users/"
+          route.pattern.should == "/resource_full_mock_users(.:format)?"
           route.verb.should == "GET"
           route.action.should == "index"
           route.controller.should == ResourceFullMockUsersController

@@ -1,8 +1,10 @@
 module ResourceFull
   class ResourceNotFound < Exception; end
   
-  class Base < ActionController::Base  
-    session :off, :if => lambda { |request| request.format.xml? || request.format.json? }
+  class Base < ActionController::Base
+    unless Rails.version == "2.3.2"
+      session :off, :if => lambda { |request| request.format.xml? || request.format.json? }
+    end
 
     def model_name; self.class.model_name; end
     def model_class; self.class.model_class; end

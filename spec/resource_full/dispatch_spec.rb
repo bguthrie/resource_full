@@ -5,6 +5,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
   
   before(:each) do
     ResourceFullMock.stubs(:find).returns stub(:id => 1)
+    # controller.stubs :render
   end
   
   it "exposes a method for skipping format and method protection"
@@ -28,6 +29,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
 
     it "dispatches to index_html render method if html is requested" do  
       controller.expects(:index_html)
+      controller.stubs(:render)
       get :index, :format => 'html'
     end
   
@@ -88,6 +90,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
     it "responds successfully to supported methods" do
       controller.class.responds_to :xml, :only => :read
       controller.stubs(:index)
+      controller.stubs(:render)
       get :index, :format => "xml"
       response.should be_success
     end
@@ -114,6 +117,10 @@ describe "ResourceFull::Dispatch", :type => :controller do
   describe "GET index" do
     controller_name "resource_full_mocks"
     
+    before :each do
+      controller.stubs(:render)
+    end
+    
     it "sets an @mocks instance variable based on the default finder" do
       ResourceFullMock.stubs(:find).returns "a list of mocks"
       get :index, :format => 'html'
@@ -131,6 +138,10 @@ describe "ResourceFull::Dispatch", :type => :controller do
   
   describe "GET show" do
     controller_name "resource_full_mocks"
+    
+    before :each do
+      controller.stubs(:render)
+    end
     
     it "sets a @mock instance variable based on the default finder" do
       ResourceFullMock.stubs(:find).returns "a mock"
