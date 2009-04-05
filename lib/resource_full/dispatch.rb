@@ -190,6 +190,17 @@ module ResourceFull
     private
     
     def ensure_responds_to_format
+      #Yes this is ugly and stupid 
+      #But it was the only way I could wrangle IE 7.0 into something useful - Economysizegeek
+      if request.headers["HTTP_USER_AGENT"].match(/MSIE 7.0/)
+        if request.format.to_s.match(/json/) || request.format.to_s.match(/javascript/) || request.request_uri.match(/\.json[?]/)
+          request.format = "json"
+        elsif request.format.to_s.match(/xml/) || request.request_uri.match(/\.xml[?]/)
+          request.format = "xml"
+        else
+          request.format = "text/html"
+        end
+      end
       unless self.class.responds_to_request_format?(request)
         render :text => "Resource does not have a representation in #{request.format.to_str} format", :status => :not_acceptable
       end
