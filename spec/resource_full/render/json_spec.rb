@@ -4,7 +4,6 @@ describe "ResourceFull::Render::JSON" , :type => :controller do
   controller_name "resource_full_mock_users"    
   
   before :each do
-    controller.use_rails_error_handling! if controller.respond_to?(:use_rails_error_handling!)
     ResourceFullMockUser.delete_all
     ResourceFullMockUsersController.resource_identifier = :id
   end
