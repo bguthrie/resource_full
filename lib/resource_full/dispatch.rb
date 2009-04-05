@@ -4,6 +4,7 @@ module ResourceFull
       def included(controller)
         super(controller)
         controller.send :extend, ClassMethods
+        controller.before_filter :ensure_sets_format_when_ie7
         controller.before_filter :ensure_responds_to_format
         controller.before_filter :ensure_responds_to_method
       end
@@ -188,19 +189,28 @@ module ResourceFull
     end
     
     private
-    
-    def ensure_responds_to_format
-      #Yes this is ugly and stupid 
-      #But it was the only way I could wrangle IE 7.0 into something useful - Economysizegeek
-      if request.headers["HTTP_USER_AGENT"].match(/MSIE 7.0/)
-        if request.format.to_s.match(/json/) || request.format.to_s.match(/javascript/) || request.request_uri.match(/\.json[?]/)
-          request.format = "json"
-        elsif request.format.to_s.match(/xml/) || request.request_uri.match(/\.xml[?]/)
-          request.format = "xml"
-        else
-          request.format = "text/html"
+        
+    def ensure_sets_format_when_ie7
+      if user_agent_ie7?
+        if request_looks_like?('json', 'javascript')
+          request.format = 'json'
+        elsif request_looks_like?('xml')
+          request.format = 'xml'
         end
       end
+    end
+    
+    def user_agent_ie7?
+      request.headers["HTTP_USER_AGENT"] =~ /MSIE 7.0/
+    end
+    
+    def request_looks_like?(*formats)
+      formats.any? do |format|
+        request.format.to_s =~ /#{format}/ || request.headers['REQUEST_URI'] =~ /\.#{format}[?]/
+      end
+    end
+        
+    def ensure_responds_to_format
       unless self.class.responds_to_request_format?(request)
         render :text => "Resource does not have a representation in #{request.format.to_str} format", :status => :not_acceptable
       end

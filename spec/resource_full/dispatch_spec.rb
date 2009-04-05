@@ -202,5 +202,38 @@ describe "ResourceFull::Dispatch", :type => :controller do
       put :update, :id => 1, :format => 'html'
       assigns(:resource_full_mock).id.should == :super_mock
     end
-  end  
+  end
+  
+  describe "when the user agent is IE7" do
+    before :each do
+      request.env["HTTP_USER_AGENT"] = "MSIE 7.0"
+    end
+    
+    it "should set the request format to json when the incoming request format looks like json" do
+      get :index, :format => 'json-test'
+      response.content_type.should == "application/json"
+    end
+    
+    it "should set the request format to json when the incoming request format looks like javascript" do
+      get :index, :format => 'javascript-test'
+      response.content_type.should == "application/json"
+    end
+    
+    it "should set the request format to json when the incoming request uri looks like json" do
+      request.env["REQUEST_URI"] = "/resource_full_mocks.json?foo=bar"
+      get :index
+      response.content_type.should == "application/json"
+    end
+    
+    it "should set the request format to xml when the incoming request format looks like xml" do
+      get :index, :format => 'xml-test'
+      response.content_type.should == "application/xml"
+    end
+    
+    it "should set the request format to json when the incoming request uri looks like xml" do
+      request.env["REQUEST_URI"] = "/resource_full_mocks.xml?foo=bar"
+      get :index
+      response.content_type.should == "application/xml"
+    end
+  end
 end
