@@ -161,6 +161,10 @@ describe "ResourceFull::Dispatch", :type => :controller do
   describe "POST create" do
     controller_name "resource_full_mocks"
     
+    before :each do
+      controller.stubs :render
+    end
+    
     it "sets a @mock instance variable based on the default creator" do
       ResourceFullMock.stubs(:create).returns stub(:errors => stub_everything, :id => :mock)
       post :create, :format => 'html'
@@ -179,6 +183,10 @@ describe "ResourceFull::Dispatch", :type => :controller do
   
   describe "PUT update" do
     controller_name "resource_full_mocks"
+    
+    before :each do
+      controller.stubs :render
+    end
     
     it "sets a @mock instance variable based on the default updater" do
       ResourceFullMock.stubs(:find).returns stub(:id => 1, :update_attributes => true, :errors => stub_everything)
