@@ -235,5 +235,22 @@ describe "ResourceFull::Dispatch", :type => :controller do
       get :index
       response.content_type.should == "application/xml"
     end
+    
+    # Dirk assures me that the following functionality is necessary due to the way Rails handles IE7
+    # request formats, or perhaps the way IE7 sends its request content-type.
+    # TODO Find a better criterion than 'else, use text/html'.
+    it "should default the request format to text/html when the incoming request uri is not supported" do
+      controller.stubs :render
+      request.env["REQUEST_URI"] = "/resource_full_mocks.png"
+      get :index
+      response.content_type.should == "text/html"
+    end
+    
+    # See above.
+    it "should default the request format to text/html when the incoming request format is not supported" do
+      controller.stubs :render
+      get :index, :format => "image/png"
+      response.content_type.should == "text/html"
+    end
   end
 end

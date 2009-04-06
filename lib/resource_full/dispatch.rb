@@ -196,6 +196,8 @@ module ResourceFull
           request.format = 'json'
         elsif request_looks_like?('xml')
           request.format = 'xml'
+        else
+          request.format = 'html'
         end
       end
     end
