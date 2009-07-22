@@ -90,7 +90,6 @@ describe "ResourceFull::Dispatch", :type => :controller do
     it "responds successfully to supported methods" do
       controller.class.responds_to :xml, :only => :read
       controller.stubs(:index)
-      controller.stubs(:render)
       get :index, :format => "xml"
       response.should be_success
     end
@@ -128,11 +127,17 @@ describe "ResourceFull::Dispatch", :type => :controller do
     end
     
     it "sets an @mocks instance variable appropriately if the default finder is overridden" do
-      controller.class.class_eval do
-        def find_all_resource_full_mocks; "another list of mocks"; end
-      end      
-      get :index, :format => 'html'
-      assigns(:resource_full_mocks).should == "another list of mocks"
+      begin
+        controller.class.class_eval do
+          def find_all_resource_full_mocks; "another list of mocks"; end
+        end      
+        get :index, :format => 'html'
+        assigns(:resource_full_mocks).should == "another list of mocks"
+      ensure
+        controller.class.class_eval do
+          undef :find_all_resource_full_mocks
+        end
+      end
     end    
   end
   
@@ -207,6 +212,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
   describe "when the user agent is IE7" do
     before :each do
       request.env["HTTP_USER_AGENT"] = "MSIE 7.0"
+      controller.stubs(:find_all_resource_full_mocks).returns([])
     end
     
     it "should set the request format to json when the incoming request format looks like json" do
