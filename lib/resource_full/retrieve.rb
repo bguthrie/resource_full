@@ -3,21 +3,18 @@ module ResourceFull
     class << self
       def included(base)
         super(base)
+        base.before_filter :set_default_format
         # Define new_person, update_person, etc.
         base.before_filter :move_queryable_params_into_model_params_on_create, :only => [:create]
       end
     end
-    
-    # Override this to provide custom find conditions.  This is automatically merged at query
-    # time with the queried conditions extracted from params.
-    def find_options; {}; end
-    
+
     protected
-    
+
     def find_model_object
       # TODO I am not sure what the correct behavior should be here, but I'm artifically
       # generating the exception in order to avoid altering the render methods for the time being.
-      returning(model_class.find(:first, :conditions => { resource_identifier => params[:id]})) do |o|
+      returning(model_class.find(:first, :conditions => { resource_identifier => params[:id] })) do |o|
         raise ActiveRecord::RecordNotFound, "not found: #{params[:id]}" if o.nil?
       end
     end
@@ -48,6 +45,10 @@ module ResourceFull
       completed_query.count
     end
     
+    def set_default_format
+      params["format"] ||= "html"
+    end
+        
     def move_queryable_params_into_model_params_on_create
       params.except(model_name).each do |param_name, value|
         if self.class.queryable_params.collect(&:name).include?(param_name.to_sym)
@@ -58,17 +59,16 @@ module ResourceFull
     
     private
     
-      def completed_query
-        self.class.queryable_params.inject(model_class) do |finder, queryer|
-          queryer.find finder, params
-        end
+    def completed_query
+      self.class.queryable_params.inject(model_class) do |finder, queryer|
+        queryer.find finder, params
       end
-    
-      def resource_identifier
-        returning(self.class.resource_identifier) do |column|
-          return column.call(params[:id]) if column.is_a?(Proc)
-        end
+    end
+  
+    def resource_identifier
+      returning(self.class.resource_identifier) do |column|
+        return column.call(params[:id]) if column.is_a?(Proc)
       end
-
+    end
   end
 end

@@ -12,9 +12,7 @@ module ResourceFull
       end
       def show_json
         self.model_object = send("find_#{model_name}")
-          render :json => model_object.to_json(show_json_options)
-      rescue ActiveRecord::RecordNotFound => e
-        render :json => e.to_json , :status => :not_found
+        render :json => model_object.to_json(show_json_options)
       end
 
       def index_json_options
@@ -53,15 +51,11 @@ module ResourceFull
                                :full_messages => model_object.errors.full_messages}
           render :json => {json_class_name(model_object) => json_data}.to_json , :status => status_for(model_object.errors)
         end
-      rescue ActiveRecord::RecordNotFound => e
-        render :json => e.to_json , :status => :not_found
       end
 
       def destroy_json
         self.model_object = send("destroy_#{model_name}")
         head :ok
-      rescue ActiveRecord::RecordNotFound => e
-        render :json => e.to_json , :status => :not_found
       end
 
       def new_json_options

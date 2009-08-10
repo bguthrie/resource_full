@@ -9,8 +9,6 @@ module ResourceFull
       def show_xml
         self.model_object = send("find_#{model_name}")
         render :xml => model_object.to_xml(show_xml_options)
-      rescue ActiveRecord::RecordNotFound => e
-        render :xml => e.to_xml, :status => :not_found
       end
 
       def index_xml_options
@@ -43,15 +41,11 @@ module ResourceFull
         else
           render :xml => model_object.errors.to_xml, :status => status_for(model_object.errors)
         end
-      rescue ActiveRecord::RecordNotFound => e
-        render :xml => e.to_xml, :status => :not_found
       end
 
       def destroy_xml
         self.model_object = send("destroy_#{model_name}")
         head :ok
-      rescue ActiveRecord::RecordNotFound => e
-        render :xml => e.to_xml, :status => :not_found
       end
 
       def new_xml_options
