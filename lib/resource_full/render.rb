@@ -6,7 +6,6 @@ module ResourceFull
     
     def self.included(controller)
       controller.rescue_from Exception, :with => :handle_generic_exception_with_correct_response_format
-      controller.rescue_from ActiveRecord::RecordNotFound, :with => :handle_record_not_found_exception_with_correct_response_format
     end
     
     private
@@ -26,17 +25,7 @@ module ResourceFull
         :conflict
       else :unprocessable_entity end
     end
-
-    def handle_record_not_found_exception_with_correct_response_format(exception)
-      if request.format.xml?
-        render :xml => exception.to_xml, :status => :not_found
-      elsif request.format.json?
-        render :json => exception.to_json, :status => :not_found
-      else
-        raise exception
-      end
-    end
-
+    
     def handle_generic_exception_with_correct_response_format(exception)
       if request.format.xml?
         if defined?(ExceptionNotifiable) && defined?(ExceptionNotifier) && self.is_a?(ExceptionNotifiable) && !(consider_all_requests_local || local_request?)
@@ -46,7 +35,7 @@ module ResourceFull
              when Symbol then send(deliverer)
              when Proc then deliverer.call(self)
            end
-
+        
            ExceptionNotifier.deliver_exception_notification(exception, self,
              request, data)
         end
