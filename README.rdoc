@@ -69,6 +69,11 @@ This allows for the following:
 To enable ResourceFull to document your resources at /resources.xml and /resources/<name>/routes.xml, 
 add +map.api+ to your +routes.rb+ file.
 
+== CONTRIBUTORS
+
+* {Vijay Aravamudhan}[http://github.com/vraravam]
+* {Dirk Elmendorf}[http://github.com/economysizegeek]
+
 == LICENSE
 
 (The MIT License)
