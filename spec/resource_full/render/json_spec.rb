@@ -76,6 +76,23 @@ describe "ResourceFull::Render::JSON" , :type => :controller do
     hash["error"]["text"].should == "SomeNonsenseException: sparrow farts"
   end
   
+  it "rescues all unhandled exceptions with an XML response for destroy action as well" do
+    mock_user = ResourceFullMockUser.create!
+    ResourceFullMockUser.send :define_method, :destroy do
+      errors.add_to_base("Cannot delete")
+      raise ActiveRecord::RecordInvalid.new(self)
+    end
+
+    begin
+      delete :destroy, :id => mock_user.id.to_s, :format => 'json'
+
+      hash = Hash.from_json(response.body)
+      hash["error"]["text"].should == "Validation failed: Cannot delete"
+    ensure
+      ResourceFullMockUser.send :remove_method, :destroy
+    end
+  end
+
   it "it sends an exception notification email if ExceptionNotifier is enabled and still renders the JSON error response" do
     cleanup = unless defined? ExceptionNotifier
       module ExceptionNotifier; end

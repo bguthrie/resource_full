@@ -62,6 +62,9 @@ module ResourceFull
         head :ok
       rescue ActiveRecord::RecordNotFound => e
         render :json => e.to_json , :status => :not_found
+      rescue ActiveRecord::ActiveRecordError => e
+        # Dont want the whole backtrace - just the message
+        render :xml => {:error => {:text => e.message}}.to_json, :status => :unprocessable_entity
       end
 
       def new_json_options

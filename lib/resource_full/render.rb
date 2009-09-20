@@ -3,20 +3,20 @@ module ResourceFull
     include ResourceFull::Render::HTML
     include ResourceFull::Render::JSON
     include ResourceFull::Render::XML
-    
+
     def self.included(controller)
       controller.rescue_from Exception, :with => :handle_generic_exception_with_correct_response_format
     end
-    
+
     private
-  
-    CONFLICT_MESSAGE = if defined?(ActiveRecord::Errors) 
+
+    CONFLICT_MESSAGE = if defined?(ActiveRecord::Errors)
       if ([Rails::VERSION::MAJOR, Rails::VERSION::MINOR] <=> [2,1]) >= 0 # if the rails version is 2.1 or greater...Í
         (I18n.translate 'activerecord.errors.messages')[:taken]
       else
         ActiveRecord::Errors.default_error_messages[:taken]
       end
-    else 
+    else
       "has already been taken"
     end
 
@@ -25,7 +25,7 @@ module ResourceFull
         :conflict
       else :unprocessable_entity end
     end
-    
+
     def handle_generic_exception_with_correct_response_format(exception)
       if request.format.xml?
         if defined?(ExceptionNotifiable) && defined?(ExceptionNotifier) && self.is_a?(ExceptionNotifiable) && !(consider_all_requests_local || local_request?)
@@ -35,7 +35,7 @@ module ResourceFull
              when Symbol then send(deliverer)
              when Proc then deliverer.call(self)
            end
-        
+
            ExceptionNotifier.deliver_exception_notification(exception, self,
              request, data)
         end
@@ -49,7 +49,7 @@ module ResourceFull
              when Symbol then send(deliverer)
              when Proc then deliverer.call(self)
            end
-        
+
            ExceptionNotifier.deliver_exception_notification(exception, self,
              request, data)
         end

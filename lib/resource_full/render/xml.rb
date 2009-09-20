@@ -52,6 +52,11 @@ module ResourceFull
         head :ok
       rescue ActiveRecord::RecordNotFound => e
         render :xml => e.to_xml, :status => :not_found
+      rescue ActiveRecord::ActiveRecordError => e
+        # Dont want the whole backtrace - just the message
+        builder = Builder::XmlMarkup.new(:indent => 0)
+        builder.errors { | b | b.error(e.message) }
+        render :xml => builder, :status => :unprocessable_entity
       end
 
       def new_xml_options
