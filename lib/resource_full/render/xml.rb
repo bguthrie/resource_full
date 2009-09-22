@@ -71,10 +71,7 @@ module ResourceFull
 
       private
       def handle_generic_error_in_xml(exception)
-        # Dont want the whole backtrace - just the message
-        builder = Builder::XmlMarkup.new(:indent => 0)
-        builder.errors { | b | b.error(exception.message) }
-        render :xml => builder, :status => :unprocessable_entity
+        render :xml => exception, :status => :unprocessable_entity
       end
     end
   end

@@ -6,7 +6,7 @@ module ResourceFull
     
         xml.errors {
           xml.error "#{self.class}: #{self.to_s}"
-          xml.error self.backtrace
+          xml.error self.backtrace if opts[:include_backtrace] == true
         }
       end
       

@@ -81,8 +81,7 @@ module ResourceFull
 
       private
       def handle_generic_error_in_json(exception)
-        # Dont want the whole backtrace - just the message
-        render :json => {:error => {:text => exception.message}}.to_json, :status => :unprocessable_entity
+        render :json => exception, :status => :unprocessable_entity
       end
     end
   end
