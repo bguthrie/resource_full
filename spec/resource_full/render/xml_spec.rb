@@ -26,7 +26,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
       get :index, :format => 'xml'
 
       response.code.should == '500'
-      response.should have_tag("errors") { with_tag("error", "SomeNonsenseException: sparrow farts") }
+      response.should have_tag("errors") { with_tag("error", "sparrow farts") }
     end
 
     it "it sends an exception notification email if ExceptionNotifier is enabled and still renders the XML error response" do
@@ -46,7 +46,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
       get :index, :format => 'xml'
 
       response.code.should == '500'
-      response.should have_tag("errors") { with_tag("error", "SomeNonsenseException: sparrow farts") }
+      response.should have_tag("errors") { with_tag("error", "sparrow farts") }
 
       if cleanup
         Object.send :remove_const, :ExceptionNotifier
@@ -60,7 +60,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
       get :index, :format => 'xml'
 
       response.code.should == '500'
-      response.should have_tag("errors") { with_tag("error", "SomeNonsenseException: sparrow farts") }
+      response.should have_tag("errors") { with_tag("error", "sparrow farts") }
     end
   end
 
@@ -78,7 +78,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
       get :show, :id => 1, :format => 'xml'
 
       response.code.should == '404'
-      response.body.should have_tag("errors") { with_tag("error", "ActiveRecord::RecordNotFound: not found: 1") }
+      response.body.should have_tag("errors") { with_tag("error", "not found: 1") }
     end
 
     it "renders appropriate errors if a generic exception occurs" do
@@ -91,7 +91,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
         get :show, :id => mock_user.id.to_s, :format => 'xml'
 
         response.code.should == '500'
-        response.should have_tag("errors") { with_tag("error", "SomeNonsenseException: sparrow farts")}
+        response.should have_tag("errors") { with_tag("error", "sparrow farts")}
       ensure
         ResourceFullMockUser.send :remove_method, :to_xml
       end
@@ -152,7 +152,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
         put :create, :resource_full_mock_user => {}, :format => 'xml'
 
         response.code.should == '500'
-        response.should have_tag("errors") { with_tag("error", "SomeNonsenseException: sparrow farts")}
+        response.should have_tag("errors") { with_tag("error", "sparrow farts")}
       ensure
         ResourceFullMockUser.send :remove_method, :validate
       end
@@ -167,7 +167,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
       put :update, :id => 1, :format => 'xml'
 
       response.code.should == '404'
-      response.should have_tag("errors") { with_tag("error", "ActiveRecord::RecordNotFound: not found: 1")}
+      response.should have_tag("errors") { with_tag("error", "not found: 1")}
     end
 
     it "renders appropriate errors if a model validation fails" do
@@ -196,7 +196,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
         put :update, :id => mock_user.id.to_s, :format => 'xml'
 
         response.code.should == '500'
-        response.should have_tag("errors") { with_tag("error", "SomeNonsenseException: sparrow farts") }
+        response.should have_tag("errors") { with_tag("error", "sparrow farts") }
       ensure
         ResourceFullMockUser.send :remove_method, :validate
       end
@@ -208,7 +208,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
       delete :destroy, :id => 1, :format => 'xml'
 
       response.code.should == '404'
-      response.should have_tag("errors") { with_tag("error", "ActiveRecord::RecordNotFound: not found: 1")}
+      response.should have_tag("errors") { with_tag("error", "not found: 1")}
     end
 
     it "renders appropriate errors if a generic exception is raised" do

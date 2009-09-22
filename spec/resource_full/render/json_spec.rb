@@ -28,7 +28,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
 
       response.code.should == '500'
       hash = Hash.from_json(response.body)
-      hash["error"]["text"].should == "SomeNonsenseException: sparrow farts"
+      hash["error"]["text"].should == "sparrow farts"
     end
 
     it "it sends an exception notification email if ExceptionNotifier is enabled and still renders the JSON error response" do
@@ -49,7 +49,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
 
       response.code.should == '500'
       hash = Hash.from_json(response.body)
-      hash["error"]["text"].should == "SomeNonsenseException: sparrow farts"
+      hash["error"]["text"].should == "sparrow farts"
 
       if cleanup
         Object.send :remove_const, :ExceptionNotifier
@@ -64,7 +64,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
 
       response.code.should == '500'
       hash = Hash.from_json(response.body)
-      hash["error"]["text"].should == "SomeNonsenseException: sparrow farts"
+      hash["error"]["text"].should == "sparrow farts"
     end
   end
 
@@ -84,7 +84,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
 
       response.code.should == '404'
       hash = Hash.from_json(response.body)
-      hash["error"]["text"].should == "ActiveRecord::RecordNotFound: not found: 1"
+      hash["error"]["text"].should == "not found: 1"
     end
 
     it "renders appropriate errors if a generic exception occurs" do
@@ -98,7 +98,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
 
         response.code.should == '500'
         hash = Hash.from_json(response.body)
-        hash["error"]["text"].should == "SomeNonsenseException: sparrow farts"
+        hash["error"]["text"].should == "sparrow farts"
       ensure
         ResourceFullMockUser.send :remove_method, :to_json
       end
@@ -158,7 +158,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
 
         response.code.should == '500'
         hash = Hash.from_json(response.body)
-        hash["error"]["text"].should == "SomeNonsenseException: sparrow farts"
+        hash["error"]["text"].should == "sparrow farts"
       ensure
         ResourceFullMockUser.send :remove_method, :validate
       end
@@ -174,7 +174,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
 
       response.code.should == '404'
       hash = Hash.from_json(response.body)
-      hash["error"]["text"].should == "ActiveRecord::RecordNotFound: not found: 1"
+      hash["error"]["text"].should == "not found: 1"
     end
 
     it "renders appropriate errors if a model validation fails" do
@@ -205,7 +205,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
 
         response.code.should == '500'
         hash = Hash.from_json(response.body)
-        hash["error"]["text"].should == "SomeNonsenseException: sparrow farts"
+        hash["error"]["text"].should == "sparrow farts"
       ensure
         ResourceFullMockUser.send :remove_method, :validate
       end
@@ -218,7 +218,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
 
       response.code.should == '404'
       hash = Hash.from_json(response.body)
-      hash["error"]["text"].should == "ActiveRecord::RecordNotFound: not found: 1"
+      hash["error"]["text"].should == "not found: 1"
     end
 
     it "renders appropriate errors if a generic exception is raised" do
