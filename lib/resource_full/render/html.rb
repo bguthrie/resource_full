@@ -7,6 +7,9 @@ module ResourceFull
         self.model_object = send("find_#{model_name}")
       rescue ActiveRecord::RecordNotFound => e
         flash[:error] = e.message
+      rescue => e
+        flash[:error] = e.message
+        redirect_to :back
       end
 
       def index_html
@@ -21,6 +24,9 @@ module ResourceFull
         else
           render :action => "new"
         end
+      rescue => e
+        flash[:error] = e.message
+        redirect_to :back
       end
 
       def update_html
@@ -31,6 +37,9 @@ module ResourceFull
         else
           render :action => "edit"
         end
+      rescue => e
+        flash[:error] = e.message
+        redirect_to :back
       end
 
       def destroy_html
@@ -40,7 +49,7 @@ module ResourceFull
       rescue ActiveRecord::RecordNotFound => e
         flash[:error] = e.message
         redirect_to :back
-      rescue ActiveRecord::ActiveRecordError => e
+      rescue => e
         flash[:error] = e.message
         redirect_to :back
       end
