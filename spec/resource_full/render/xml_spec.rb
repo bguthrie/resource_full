@@ -156,6 +156,14 @@ describe "ResourceFull::Render::XML" , :type => :controller do
         response.code.should == '200'
       end
 
+      it "renders all model objects using sub-class name" do
+        2.times { ResourceFullMockSubUser.create! }
+
+        get :index, :format => 'xml'
+        Hash.from_xml(response.body)['resource_full_mock_sub_users'].size.should == 2
+        response.code.should == '200'
+      end
+
       it "rescues all unhandled exceptions with an XML response" do
         ResourceFullMockUser.expects(:find).raises SomeNonsenseException, "sparrow farts"
 

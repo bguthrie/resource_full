@@ -34,6 +34,7 @@ Spec::Runner.configure do |config|
       t.string   "join_date"
       t.integer  "income"
       t.integer  "resource_full_mock_employer_id"
+      t.string   "type"
       t.timestamps
     end
     
@@ -76,6 +77,9 @@ end
 class ResourceFullMockUser < ActiveRecord::Base
   belongs_to :resource_full_mock_employer
   has_many :resource_full_mock_addresses
+end
+
+class ResourceFullMockSubUser < ResourceFullMockUser
 end
 
 class ResourceFullMockAddress < ActiveRecord::Base
