@@ -34,12 +34,18 @@ Spec::Runner.configure do |config|
       t.string   "join_date"
       t.integer  "income"
       t.integer  "resource_full_mock_employer_id"
+      t.string   "type"
       t.timestamps
     end
     
     ActiveRecord::Base.connection.create_table "resource_full_mock_employers", :force => true do |t|
       t.string "name"
       t.string "email"
+      t.timestamps
+    end
+    
+    ActiveRecord::Base.connection.create_table "resource_full_namespaced_mock_records", :force => true do |t|
+      t.string "name"
       t.timestamps
     end
   end
@@ -54,6 +60,8 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :resources, :controller => 'resource_full/controllers/resources' do |resource|
     resource.resources :routes, :controller => 'resource_full/controllers/routes'
   end
+  map.resources :resource_full_namespaced_mock_records
+  map.resources :resource_full_namespaced_mock_record_with_xml_overrides
 end
 
 class ResourceFullMock
@@ -71,6 +79,9 @@ class ResourceFullMockUser < ActiveRecord::Base
   has_many :resource_full_mock_addresses
 end
 
+class ResourceFullMockSubUser < ResourceFullMockUser
+end
+
 class ResourceFullMockAddress < ActiveRecord::Base
   belongs_to :resource_full_mock_user
 end
@@ -84,6 +95,22 @@ end
 class ResourceFullSubMocksController < ResourceFullMocksController; end
 class ResourceFullMockUsersController < ResourceFull::Base;         end
 class ResourceFullMockAddressesController < ResourceFull::Base;     end
+
+module ResourceFullSpec
+  class ResourceFullNamespacedMockRecord < ActiveRecord::Base
+  end
+end
+class ResourceFullNamespacedMockRecordsController < ResourceFull::Base
+  exposes ResourceFullSpec::ResourceFullNamespacedMockRecord
+end
+class ResourceFullNamespacedMockRecordWithXmlOverridesController < ResourceFull::Base
+  exposes ResourceFullSpec::ResourceFullNamespacedMockRecord
+  def show_xml_options;   {:root => 'my_show_root'};   end
+  def index_xml_options;  {:root => 'my_index_roots'}; end
+  def create_xml_options; {:root => 'my_create_root'}; end
+  def update_xml_options; {:root => 'my_update_root'}; end
+  def new_xml_options;    {:root => 'my_new_root'};    end
+end
 
 ActionController::Routing.use_controllers! %w{ 
   resource_full_mock_users 

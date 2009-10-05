@@ -6,6 +6,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
   class SomeNonsenseException < Exception; end
 
   before :each do
+    controller.use_rails_error_handling!
     ResourceFullMockUser.delete_all
     ResourceFullMockUsersController.resource_identifier = :id
   end

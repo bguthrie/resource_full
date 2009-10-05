@@ -145,7 +145,7 @@ module ResourceFull
           elsif opts.has_key?(:column)
             [ opts[:column] ]
           elsif opts[:resource_identifier] && opts.has_key?(:from)
-            [ ResourceFull::Base.controller_for(infer_model_from(resource.model_class, opts[:from]).name.pluralize).resource_identifier ]
+            [ ResourceFull::Base.controller_for(infer_model_from(resource.model_class, opts[:from]).simple_name.pluralize).resource_identifier ]
           else
             [ name ]
           end
