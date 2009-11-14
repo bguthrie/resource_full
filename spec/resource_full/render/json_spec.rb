@@ -85,7 +85,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
 
       response.code.should == '404'
       hash = Hash.from_json(response.body)
-      hash["error"]["text"].should == "not found: 1"
+      hash["error"]["text"].should == "Couldn't find ResourceFullMockUser with id=1"
     end
 
     it "renders appropriate errors if a generic exception occurs" do
@@ -175,7 +175,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
 
       response.code.should == '404'
       hash = Hash.from_json(response.body)
-      hash["error"]["text"].should == "not found: 1"
+      hash["error"]["text"].should == "Couldn't find ResourceFullMockUser with id=1"
     end
 
     it "renders appropriate errors if a model validation fails" do

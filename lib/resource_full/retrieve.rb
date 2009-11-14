@@ -14,7 +14,7 @@ module ResourceFull
       # TODO I am not sure what the correct behavior should be here, but I'm artifically
       # generating the exception in order to avoid altering the render methods for the time being.
       returning(model_class.find(:first, :conditions => { resource_identifier => params[:id]})) do |o|
-        raise ActiveRecord::RecordNotFound, "not found: #{params[:id]}" if o.nil?
+        raise ActiveRecord::RecordNotFound, "Couldn't find #{model_class} with #{resource_identifier}=#{params[:id]}" if o.nil?
       end
     end
 
