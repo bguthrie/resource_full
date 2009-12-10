@@ -28,7 +28,7 @@ module ResourceFull
         {}
       end
       def create_xml
-        self.model_object = send("create_#{model_name}")
+        self.model_object = transactional_create_model_object
         if model_object.errors.empty?
           render :xml => model_object.to_xml({:root => model_name}.merge(create_xml_options)), :status => :created, :location => send("#{model_name}_url", model_object.id)
         else
@@ -42,7 +42,7 @@ module ResourceFull
         {}
       end
       def update_xml
-        self.model_object = send("update_#{model_name}")
+        self.model_object = transactional_update_model_object
         if model_object.errors.empty?
           render :xml => model_object.to_xml({:root => model_name}.merge(update_xml_options))
         else

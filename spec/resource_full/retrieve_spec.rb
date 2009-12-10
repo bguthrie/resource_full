@@ -94,32 +94,40 @@ describe "ResourceFull::Retrieve", :type => :controller do
     end
   end
   
-  it "updates the requested model object based on the given parameters" do
-    user = ResourceFullMockUser.create! :last_name => "threepwood"
-    post :update, :id => user.id, :resource_full_mock_user => { :last_name => "guybrush" }
-    user.reload.last_name.should == "guybrush"
+  describe "update" do
+    it "updates the requested model object based on the given parameters" do
+      user = ResourceFullMockUser.create! :last_name => "threepwood"
+      post :update, :id => user.id, :resource_full_mock_user => { :last_name => "guybrush" }
+      user.reload.last_name.should == "guybrush"
+    end
+  
+    it "updates the requested model object using the correct column if the resource_identifier attribute has been overridden" do
+      ResourceFullMockUsersController.resource_identifier = :first_name
+      user = ResourceFullMockUser.create! :first_name => "guybrush"
+      post :update, :id => "guybrush", :resource_full_mock_user => { :last_name => "threepwood" }
+      user.reload.last_name.should == "threepwood"
+    end
+
+    it "should perform the actions in a transaction (in case the update on the model creates associated/child objects)"
   end
   
-  it "updates the requested model object using the correct column if the resource_identifier attribute has been overridden" do
-    ResourceFullMockUsersController.resource_identifier = :first_name
-    user = ResourceFullMockUser.create! :first_name => "guybrush"
-    post :update, :id => "guybrush", :resource_full_mock_user => { :last_name => "threepwood" }
-    user.reload.last_name.should == "threepwood"
-  end
+  describe "create" do
+    it "creates a new model object based on the given parameters" do
+      put :create, :resource_full_mock_user => { :first_name => "guybrush", :last_name => "threepwood" }
+      ResourceFullMockUser.count.should == 1
+      ResourceFullMockUser.find(:first).first_name.should == "guybrush"
+    end
   
-  it "creates a new model object based on the given parameters" do
-    put :create, :resource_full_mock_user => { :first_name => "guybrush", :last_name => "threepwood" }
-    ResourceFullMockUser.count.should == 1
-    ResourceFullMockUser.find(:first).first_name.should == "guybrush"
-  end
-  
-  it "creates a new model object appropriately if a creational parameter is queryable but not placed in the model object params, as with a nested route" do
-    ResourceFullMockUsersController.queryable_with :first_name
-    put :create, :first_name => "guybrush", :resource_full_mock_user => { :last_name => "threepwood" }
-    ResourceFullMockUser.count.should == 1
-    user = ResourceFullMockUser.find :first
-    user.first_name.should == "guybrush"
-    user.last_name.should == "threepwood"
+    it "creates a new model object appropriately if a creational parameter is queryable but not placed in the model object params, as with a nested route" do
+      ResourceFullMockUsersController.queryable_with :first_name
+      put :create, :first_name => "guybrush", :resource_full_mock_user => { :last_name => "threepwood" }
+      ResourceFullMockUser.count.should == 1
+      user = ResourceFullMockUser.find :first
+      user.first_name.should == "guybrush"
+      user.last_name.should == "threepwood"
+    end
+
+    it "should perform the actions in a transaction (in case the create on the model creates associated/child objects)"
   end
   
   it "deletes the requested model object" do

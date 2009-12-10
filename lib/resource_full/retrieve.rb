@@ -22,10 +22,22 @@ module ResourceFull
       model_class.new
     end
 
-    def update_model_object
-      returning(find_model_object) do |object|
-        object.update_attributes params[model_name]
+    # Decorate the method with this - so that even if the user has overridden this method, it will get decorated within a transaction!
+    [:create, :update].each do |action|
+      send(:define_method, "transactional_#{action}_model_object") do
+        result = nil
+        ActiveRecord::Base.transaction do
+          result = send("#{action}_#{model_name}")
+          raise ActiveRecord::Rollback unless result.errors.empty?
+        end
+        result
       end
+    end
+
+    def update_model_object
+      object = find_model_object
+      object.update_attributes(params[model_name])
+      object
     end
 
     def create_model_object

@@ -17,7 +17,7 @@ module ResourceFull
       end
 
       def create_html
-        self.model_object = send("create_#{model_name}")
+        self.model_object = transactional_create_model_object
         if model_object.errors.empty?
           flash[:info] = "Successfully created #{model_name.humanize} with ID of #{model_object.id}."
           redirect_to :action => :index, :format => :html
@@ -30,7 +30,7 @@ module ResourceFull
       end
 
       def update_html
-        self.model_object = send("update_#{model_name}")
+        self.model_object = transactional_update_model_object
         if model_object.errors.empty?
           flash[:info] = "Successfully updated #{model_name.humanize} with ID of #{model_object.id}."
           redirect_to :action => :index, :format => :html
