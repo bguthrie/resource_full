@@ -45,7 +45,9 @@ module ResourceFull
     end
 
     def destroy_model_object
-      find_model_object.destroy
+      object = find_model_object
+      object.destroy
+      object
     end
 
     def find_all_model_objects

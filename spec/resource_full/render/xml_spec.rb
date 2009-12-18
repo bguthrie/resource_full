@@ -348,11 +348,11 @@ describe "ResourceFull::Render::XML" , :type => :controller do
     end
 
     describe "destroy" do
-      xit "renders appropriate errors if a model could not be found" do
+      it "renders appropriate errors if a model could not be found" do
         delete :destroy, :id => 1, :format => 'xml'
 
         response.code.should == '404'
-        response.should have_tag("errors") { with_tag("error", "not found: 1")}
+        response.should have_tag("errors") { with_tag("error", "Couldn't find ResourceFullMockUser with id=1")}
       end
 
       it "renders appropriate errors if a generic exception is raised" do
@@ -371,6 +371,8 @@ describe "ResourceFull::Render::XML" , :type => :controller do
           ResourceFullMockUser.send :remove_method, :destroy
         end
       end
+
+      it "renders error if the model could not be destroyed"
     end
   end
 end

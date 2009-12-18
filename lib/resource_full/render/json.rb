@@ -65,7 +65,14 @@ module ResourceFull
 
       def destroy_json
         self.model_object = send("destroy_#{model_name}")
-        head :ok
+        if model_object.errors.empty?
+          head :ok
+        else
+          json_data = model_object.attributes
+          json_data[:errors] = {:list => model_object.errors,
+                               :full_messages => model_object.errors.full_messages}
+          render :json => {json_class_name(model_object) => json_data}.to_json, :status => :unprocessable_entity
+        end
       rescue ActiveRecord::RecordNotFound => e
         render :json => e.to_json, :status => :not_found
       rescue => e

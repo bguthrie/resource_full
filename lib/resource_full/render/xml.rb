@@ -56,7 +56,11 @@ module ResourceFull
 
       def destroy_xml
         self.model_object = send("destroy_#{model_name}")
-        head :ok
+        if model_object.errors.empty?
+          head :ok
+        else
+          render :xml => model_object.errors, :status => :unprocessable_entity
+        end
       rescue ActiveRecord::RecordNotFound => e
         render :xml => e.to_xml, :status => :not_found
       rescue => e
