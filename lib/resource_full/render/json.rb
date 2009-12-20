@@ -64,7 +64,7 @@ module ResourceFull
       end
 
       def destroy_json
-        self.model_object = send("destroy_#{model_name}")
+        self.model_object = transactional_destroy_model_object
         if model_object.errors.empty?
           head :ok
         else

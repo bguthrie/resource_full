@@ -23,7 +23,7 @@ module ResourceFull
     end
 
     # Decorate the method with this - so that even if the user has overridden this method, it will get decorated within a transaction!
-    [:create, :update].each do |action|
+    [:create, :update, :destroy].each do |action|
       send(:define_method, "transactional_#{action}_model_object") do
         result = nil
         ActiveRecord::Base.transaction do

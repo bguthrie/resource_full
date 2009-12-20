@@ -43,7 +43,7 @@ module ResourceFull
       end
 
       def destroy_html
-        self.model_object = send("destroy_#{model_name}")
+        self.model_object = transactional_destroy_model_object
         if model_object.errors.empty?
           flash[:info] = "Successfully destroyed #{model_name.humanize} with ID of #{params[:id]}."
           redirect_to :action => :index, :format => :html
