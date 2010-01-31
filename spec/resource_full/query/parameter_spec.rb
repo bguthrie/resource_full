@@ -32,10 +32,14 @@ module ResourceFull
         it "looks up the table name for the given assocation if it is specified in a hash" do
           CustomParameter.new(:foo, ResourceFullMockAddressesController, :from => { :resource_full_mock_user => :resource_full_mock_employer }).table.should == "resource_full_mock_employers"
         end
-    
       end
-  
+
       describe "subclass" do
+        before(:each) do
+          # HACKTAG: Fixing leaking of behavior from a different test
+          ResourceFullSubMocksController.instance_variable_set("@model_class", nil)
+        end
+
         it "returns a copy of itself with its table unchanged if the subclass does not use a different table" do
           parameter = ResourceFull::Query::CustomParameter.new(:name, ResourceFullMocksController)
           parameter.subclass(ResourceFullSubMocksController).table.should == "mock"
@@ -46,7 +50,7 @@ module ResourceFull
           parameter = ResourceFull::Query::CustomParameter.new(:name, ResourceFullMocksController)
           parameter.subclass(ResourceFullSubMocksController).table.should == "resource_full_mock_users"
         end
-        
+
         it "returns a copy of itself with its table unchanged if it was originally built with a custom table" do
           parameter = ResourceFull::Query::CustomParameter.new(:name, ResourceFullMocksController, :table => "widgets")
           parameter.subclass(ResourceFullSubMocksController).table.should == "widgets"          
