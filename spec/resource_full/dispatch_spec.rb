@@ -88,7 +88,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
 
     it "responds successfully to supported methods" do
       controller.class.responds_to :xml, :only => :read
-      controller.stubs(:index => nil, :render => nil)
+      controller.stubs(:index)
       get :index, :format => "xml"
       response.should be_success
     end
