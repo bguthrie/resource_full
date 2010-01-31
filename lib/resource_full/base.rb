@@ -128,13 +128,13 @@ module ResourceFull
       end
       
       def remove_retrieval_methods!
-        remove_method "new_#{model_name}"
-        remove_method "find_#{model_name}"
-        remove_method "create_#{model_name}"
-        remove_method "update_#{model_name}"
-        remove_method "destroy_#{model_name}"
-        remove_method "find_all_#{model_name.pluralize}"
-        remove_method "count_all_#{model_name.pluralize}"
+        remove_method "new_#{model_name}" if method_defined? "new_#{model_name}"
+        remove_method "find_#{model_name}" if method_defined? "find_#{model_name}"
+        remove_method "create_#{model_name}" if method_defined? "create_#{model_name}"
+        remove_method "update_#{model_name}" if method_defined? "update_#{model_name}"
+        remove_method "destroy_#{model_name}" if method_defined? "destroy_#{model_name}"
+        remove_method "find_all_#{model_name.pluralize}" if method_defined? "find_all_#{model_name.pluralize}"
+        remove_method "count_all_#{model_name.pluralize}" if method_defined? "count_all_#{model_name.pluralize}"
       end
   end
 end
