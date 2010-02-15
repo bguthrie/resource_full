@@ -53,7 +53,7 @@ module ResourceFull
     # The name of the model exposed by this resource.  Derived from the name of the controller
     # by default.  See +exposes+.
     def model_name
-      @model_class ? @model_class.simple_name.underscore : self.controller_name.singularize
+      @model_class ? @model_class.name.demodulize.underscore : self.controller_name.singularize
     end
     
     # Indicates that this resource is identified by a database column other than the default

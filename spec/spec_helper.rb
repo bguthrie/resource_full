@@ -121,5 +121,10 @@ ActionController::Routing.use_controllers! %w{
   resource_full/controllers/resources
 }
 
-def putsh(stuff); puts ERB::Util.h(stuff) + "<br/>"; end
-def ph(stuff); puts ERB::Util.h(stuff.inspect) + "<br/>"; end
+def putsh(stuff)
+  puts "#{ERB::Util.h(stuff)}<br/>"
+end
+
+def ph(stuff)
+  putsh stuff.inspect
+end

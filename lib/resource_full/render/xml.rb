@@ -20,7 +20,7 @@ module ResourceFull
       end
       def index_xml
         self.model_objects = send("find_all_#{model_name.pluralize}")
-        root_tag = model_objects.all? { |e| e.is_a?(model_objects.first.class) && model_objects.first.class.to_s != "Hash" } ? model_objects.first.class.simple_name.underscore.pluralize : model_name.pluralize
+        root_tag = model_objects.all? { |e| e.is_a?(model_objects.first.class) && model_objects.first.class.to_s != "Hash" } ? model_objects.first.class.name.demodulize.underscore.pluralize : model_name.pluralize
         render :xml => model_objects.to_xml({:root => root_tag}.merge(index_xml_options))
       end
 

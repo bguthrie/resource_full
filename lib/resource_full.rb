@@ -1,5 +1,4 @@
 # Core library
-require 'resource_full/core_extensions/module'
 require 'resource_full/core_extensions/exception'
 require 'resource_full/core_extensions/from_json'
 require 'resource_full/dispatch'
