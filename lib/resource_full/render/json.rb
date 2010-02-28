@@ -27,6 +27,18 @@ module ResourceFull
         render :json => model_objects.to_json(index_json_options)
       end
 
+      def count_json
+        count = send("count_all_#{model_name.pluralize}")
+        render :json => {"count" => count}.to_json
+      end
+
+      def new_json_options
+        {}
+      end
+      def new_json
+        render :json => send("new_#{model_name}").to_json(new_json_options)
+      end
+
       def create_json_options
         {}
       end
@@ -42,6 +54,13 @@ module ResourceFull
         end
       rescue => e
         handle_generic_error_in_json(e)
+      end
+
+      def edit_json_options
+        {}
+      end
+      def edit_json
+        render :json => send("edit_#{model_name}").to_json(edit_json_options)
       end
 
       def update_json_options
@@ -77,13 +96,6 @@ module ResourceFull
         render :json => e.to_json, :status => :not_found
       rescue => e
         handle_generic_error_in_json(e)
-      end
-
-      def new_json_options
-        {}
-      end
-      def new_json
-        render :json => send("new_#{model_name}").to_json(new_json_options)
       end
 
       private

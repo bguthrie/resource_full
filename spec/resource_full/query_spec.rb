@@ -89,19 +89,19 @@ describe "ResourceFull::Query", :type => :controller do
   
   it "counts all objects if there are no parameters" do
     controller.class.queryable_with :resource_full_mock_employer_id
-    get :count
+    get :count, :format => 'xml'
     Hash.from_xml(response.body)['count'].to_i.should == 3
   end
   
   it "counts the requested objects if there are paramters" do
     controller.class.queryable_with :resource_full_mock_employer_id
-    get :count, :resource_full_mock_employer_id => 1
+    get :count, :resource_full_mock_employer_id => 1, :format => 'xml'
     Hash.from_xml(response.body)['count'].to_i.should == 2
   end
 
   it "counts no objects if there are none with the requested parameters" do
     controller.class.queryable_with :resource_full_mock_employer_id
-    get :count, :resource_full_mock_employer_id => 15
+    get :count, :resource_full_mock_employer_id => 15, :format => 'xml'
     Hash.from_xml(response.body)['count'].to_i.should == 0
   end
   

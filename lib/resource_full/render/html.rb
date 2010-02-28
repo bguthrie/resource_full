@@ -16,6 +16,14 @@ module ResourceFull
         self.model_objects = send("find_all_#{model_name.pluralize}")
       end
 
+      def count_html
+        send("count_all_#{model_name.pluralize}")
+      end
+
+      def new_html
+        self.model_object = send("new_#{model_name}")
+      end
+
       def create_html
         self.model_object = transactional_create_model_object
         if model_object.errors.empty?
@@ -27,6 +35,10 @@ module ResourceFull
       rescue => e
         flash[:error] = e.message
         redirect_to :back
+      end
+
+      def edit_html
+        self.model_object = send("edit_#{model_name}")
       end
 
       def update_html
@@ -56,10 +68,6 @@ module ResourceFull
       rescue => e
         flash[:error] = e.message
         redirect_to :back
-      end
-
-      def new_html
-        self.model_object = send("new_#{model_name}")
       end
     end
   end

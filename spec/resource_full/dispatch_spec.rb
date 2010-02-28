@@ -140,6 +140,20 @@ describe "ResourceFull::Dispatch", :type => :controller do
     end
   end
 
+  describe "GET count" do
+    controller_name "resource_full_mocks"
+    
+    before :each do
+      controller.stubs(:render)
+    end
+
+    it "should render the count" do
+      ResourceFullMock.stubs(:count).returns(12)
+      get :count, :format => 'html'
+      response.body.should == ""
+    end
+  end
+
   describe "GET show" do
     controller_name "resource_full_mocks"
 

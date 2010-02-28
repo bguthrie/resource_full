@@ -53,7 +53,8 @@ end
 
 ActionController::Routing::Routes.draw do |map|
   map.foo '/foo', :controller => 'resource_full_mocks', :action => 'foo'
-  map.resources :resource_full_mocks, :resource_full_sub_mocks, :resource_full_mock_addresses
+  map.resources :resource_full_mocks, :collection => {:count => :get}
+  map.resources :resource_full_sub_mocks, :resource_full_mock_addresses
   map.resources :resource_full_mock_users, :collection => {:count => :get} do |users|
     users.resources :resource_full_mock_addresses
   end

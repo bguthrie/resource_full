@@ -24,6 +24,29 @@ module ResourceFull
         render :xml => model_objects.to_xml({:root => root_tag}.merge(index_xml_options))
       end
 
+      # Renders the number of objects in the database, in the following form:
+      #
+      #   <count type="integer">34</count>
+      #
+      # This accepts the same queryable parameters as the index method.
+      #
+      # N.B. This may be highly specific to my previous experience and may go away
+      # in previous releases.
+      def count_xml
+        xml = Builder::XmlMarkup.new :indent => 2
+        xml.instruct!
+        render :xml => xml.count(send("count_all_#{model_name.pluralize}"))
+      ensure
+        xml = nil
+      end
+
+      def new_xml_options
+        {}
+      end
+      def new_xml
+        render :xml => send("new_#{model_name}").to_xml({:root => model_name}.merge(new_xml_options))
+      end
+
       def create_xml_options
         {}
       end
@@ -36,6 +59,13 @@ module ResourceFull
         end
       rescue => e
         handle_generic_error_in_xml(e)
+      end
+
+      def edit_xml_options
+        {}
+      end
+      def edit_xml
+        render :xml => send("edit_#{model_name}").to_xml({:root => model_name}.merge(edit_xml_options))
       end
 
       def update_xml_options
@@ -65,13 +95,6 @@ module ResourceFull
         render :xml => e.to_xml, :status => :not_found
       rescue => e
         handle_generic_error_in_xml(e)
-      end
-
-      def new_xml_options
-        {}
-      end
-      def new_xml
-        render :xml => send("new_#{model_name}").to_xml({:root => model_name}.merge(new_xml_options))
       end
 
       private

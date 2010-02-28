@@ -22,6 +22,10 @@ module ResourceFull
       model_class.new
     end
 
+    def edit_model_object
+      find_model_object
+    end
+
     # Decorate the method with this - so that even if the user has overridden this method, it will get decorated within a transaction!
     [:create, :update, :destroy].each do |action|
       send(:define_method, "transactional_#{action}_model_object") do
