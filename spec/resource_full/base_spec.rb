@@ -2,6 +2,10 @@ require File.dirname(__FILE__) + '/../spec_helper'
  
 describe ResourceFull::Base, :type => :controller do
   controller_name "resource_full_mocks"
+
+  before(:each) do
+    controller.class.instance_variable_set("@renderable_formats", nil)
+  end
  
   it "infers the name of its resource model from its class name" do
     controller.model_name.should == "resource_full_mock"

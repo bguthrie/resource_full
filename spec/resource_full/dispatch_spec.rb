@@ -12,6 +12,10 @@ describe "ResourceFull::Dispatch", :type => :controller do
   describe "based on request format" do
     controller_name "resource_full_mocks"
 
+    before(:each) do
+      controller.class.instance_variable_set("@renderable_formats", nil)
+    end
+
     after :each do
       controller.class.responds_to :defaults
     end
@@ -32,7 +36,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
       get :index, :format => 'html'
     end
 
-    it "raises a 406 error if it does not respond to a format for which no methods are included" do
+    it "raises a 406 error if it does not respond to a format for which no actions are included" do
       get :index, :format => 'txt'
       response.code.should == '406'
     end
@@ -53,47 +57,52 @@ describe "ResourceFull::Dispatch", :type => :controller do
   describe "based on request action" do
     controller_name "resource_full_mocks"
 
+    before(:each) do
+      controller.class.instance_variable_set("@renderable_formats", nil)
+    end
+
     after :each do
       controller.class.responds_to :defaults
     end
 
-    it "claims to respond to create, read, update, delete, and count by default" do
-      controller.class.responds_to :defaults
-      controller.class.allowed_methods.should include(:create, :read, :update, :delete)
-    end
-
-    it "lists all the standard Rails methods plus count as its possible actions" do
+    it "lists all the standard Rails actions plus count as its possible actions" do
       controller.class.possible_actions.should include(:create, :new, :show, :index, :count, :update, :edit, :destroy)
     end
 
-    it "claims to not respond to any methods for an unsupported format" do
+    it "claims to not respond to any actions for an unsupported format" do
       controller.class.responds_to :xml
-      controller.class.allowed_methods(:html).should be_empty
+      controller.class.allowed_actions(:html).should be_empty
     end
 
-    it "claims to respond to default methods for a requested format if no explicit methods are given" do
+    it "claims to respond to default actions for a requested format if no explicit actions are given" do
       controller.class.responds_to :xml
-      controller.class.allowed_methods(:xml).should include(:create, :read, :update, :delete)
+      controller.class.allowed_actions(:xml).should include(:index, :show, :count, :new, :create, :edit, :update, :destroy)
     end
 
-    it "claims to respond to only methods given a single value with the :only option" do
+    it "claims to respond to only actions given a single value with the :only option" do
       controller.class.responds_to :xml, :only => :read
-      controller.class.allowed_methods(:xml).should == [:read]
+      actuals = controller.class.allowed_actions(:xml)
+      expecteds = [:index, :show, :count]
+      actuals.size.should == expecteds.size
+      (actuals - expecteds).should be_empty
     end
 
-    it "claims to respond to only methods given multiple values with the :only option" do
+    it "claims to respond to only actions given multiple values with the :only option" do
       controller.class.responds_to :xml, :only => [:read, :delete]
-      controller.class.allowed_methods(:xml).should == [:read, :delete]
+      actuals = controller.class.allowed_actions(:xml)
+      expecteds = [:index, :show, :count, :destroy]
+      actuals.size.should == expecteds.size
+      (actuals - expecteds).should be_empty
     end
 
-    it "responds successfully to supported methods" do
+    it "responds successfully to supported actions" do
       controller.class.responds_to :xml, :only => :read
       controller.stubs(:index)
       get :index, :format => "xml"
       response.should be_success
     end
 
-    it "disallows unsupported methods with code 405" do
+    it "disallows unsupported actions with code 405" do
       controller.class.responds_to :html, :only => :read
       controller.stubs(:destroy)
       delete :destroy, :id => 1
@@ -101,7 +110,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
       response.body.should =~ /Resource does not allow destroy action/
     end
 
-    it "ignores and does not verify custom methods" do
+    it "ignores and does not verify custom actions" do
       controller.class.responds_to :xml, :only => [:delete]
 
       get :foo, :format => 'xml'
@@ -110,12 +119,40 @@ describe "ResourceFull::Dispatch", :type => :controller do
     end
 
     it "allows you to specify the appropriate CRUD semantics of a custom method"
+
+    describe "register_action" do
+      controller_name "resource_full_mocks"
+
+      before(:each) do
+        controller.class.instance_variable_set("@renderable_formats", nil)
+      end
+
+      after :each do
+        controller.class.responds_to :defaults
+      end
+
+      it "should be able to register custom action for a specific format" do
+        controller.class.register_action :vijay, :format => :xml
+
+        controller.class.allowed_actions(:xml).should include(:vijay)
+        controller.class.allowed_actions(:html).should_not include(:vijay)
+      end
+
+      it "should be able to register custom action for multiple formats" do
+        controller.class.register_action :vijay, :format => [:xml, :html]
+
+        controller.class.allowed_actions(:xml).should include(:vijay)
+        controller.class.allowed_actions(:html).should include(:vijay)
+        controller.class.allowed_actions(:json).should_not include(:vijay)
+      end
+    end
   end
 
   describe "GET index" do
     controller_name "resource_full_mocks"
 
-    before :each do
+    before(:each) do
+      controller.class.instance_variable_set("@renderable_formats", nil)
       controller.stubs(:render)
     end
 
@@ -142,8 +179,9 @@ describe "ResourceFull::Dispatch", :type => :controller do
 
   describe "GET count" do
     controller_name "resource_full_mocks"
-    
-    before :each do
+
+    before(:each) do
+      controller.class.instance_variable_set("@renderable_formats", nil)
       controller.stubs(:render)
     end
 
@@ -157,7 +195,8 @@ describe "ResourceFull::Dispatch", :type => :controller do
   describe "GET show" do
     controller_name "resource_full_mocks"
 
-    before :each do
+    before(:each) do
+      controller.class.instance_variable_set("@renderable_formats", nil)
       controller.stubs(:render)
     end
 
@@ -179,7 +218,8 @@ describe "ResourceFull::Dispatch", :type => :controller do
   describe "POST create" do
     controller_name "resource_full_mocks"
 
-    before :each do
+    before(:each) do
+      controller.class.instance_variable_set("@renderable_formats", nil)
       controller.stubs :render
     end
 
@@ -202,7 +242,8 @@ describe "ResourceFull::Dispatch", :type => :controller do
   describe "PUT update" do
     controller_name "resource_full_mocks"
 
-    before :each do
+    before(:each) do
+      controller.class.instance_variable_set("@renderable_formats", nil)
       controller.stubs :render
     end
 
@@ -226,6 +267,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
     before :each do
       request.env["HTTP_USER_AGENT"] = "MSIE 7.0"
       controller.stubs(:find_all_resource_full_mocks).returns([])
+      controller.class.instance_variable_set("@renderable_formats", nil)
     end
 
     it "should set the request format to json when the incoming request format looks like json" do

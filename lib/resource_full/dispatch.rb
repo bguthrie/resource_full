@@ -20,6 +20,19 @@ module ResourceFull
         :delete => [ :destroy ]
       }
       
+      # usage:
+      # register_action :index, :format => [:xml, :json]
+      # register_action :update, :format => [:xml]
+      def register_action(*actions)
+        opts = actions.extract_options!
+        @renderable_formats ||= default_responds
+        formats = [opts[:format]].flatten
+        formats.each do |format|
+          @renderable_formats[format] ||= []
+          @renderable_formats[format] += actions
+        end
+      end
+      
       # Indicates that the controller responds to one of the requested CRUD (create, read,
       # update, delete) methods.  These correspond to controller methods in the following
       # manner:
@@ -39,7 +52,6 @@ module ResourceFull
       def responds_to(*formats)
         if formats.first == :defaults
           @renderable_formats = default_responds
-          @renderable_formats_overridden = false
           return
         end
         
@@ -48,18 +60,15 @@ module ResourceFull
         supported_crud_methods = if opts[:only]
           [ opts[:only] ].flatten
         elsif opts[:except]
-          possible_crud_methods - [ opts[:except] ].flatten
+          CRUD_METHODS_TO_ACTIONS.keys - [ opts[:except] ].flatten
         else
-          possible_crud_methods
+          CRUD_METHODS_TO_ACTIONS.keys
         end
-        
-        unless renderable_formats_already_overridden?
-          @renderable_formats = {}
-          @renderable_formats_overridden = true
-        end
-        
+        @renderable_formats ||= {}
         formats.each do |format|
-          renderable_formats[format] = supported_crud_methods
+          @renderable_formats[format] ||= []
+          @renderable_formats[format] += CRUD_METHODS_TO_ACTIONS.slice(*supported_crud_methods).values.flatten
+          @renderable_formats[format].uniq!
         end
       end
       
@@ -68,15 +77,10 @@ module ResourceFull
         renderable_formats.keys
       end
       
-      # A list of symbols of all allowed CRUD methods (e.g. :create, :delete)
-      def allowed_methods(format=:html)
-        renderable_formats[format] || []
-      end
-      
       # A list of symbols of all allowed controller actions (e.g. :show, :destroy) derived from
       # the allowed CRUD actions.
       def allowed_actions(format=:html)
-        renderable_formats[format].sum {|crud_action| CRUD_METHODS_TO_ACTIONS[crud_action]}
+        renderable_formats[format] || []
       end
       
       # A list of all possible CRUD actions that this framework understands, which is to say,
@@ -84,7 +88,7 @@ module ResourceFull
       def possible_actions
         CRUD_METHODS_TO_ACTIONS.values.sum([])
       end
-      
+
       # Returns true if the request format is an allowed format.
       def responds_to_request_format?(request)
         allowed_formats.include? extract_request_format(request)
@@ -94,6 +98,7 @@ module ResourceFull
       def responds_to_request_action?(request, action)
         # TODO Consider using ActionController's +verify+ method in preference to this.
         # TODO We don't verify custom methods yet, so ignore them.
+        # TODO: In response to the above todo, can we remove these lines - the one above and the one below?
         return true unless possible_actions.include?(action.to_sym)
         allowed_actions(extract_request_format(request)).include? action.to_sym
       end
@@ -106,22 +111,14 @@ module ResourceFull
       
       private
       
-        def possible_crud_methods
-          CRUD_METHODS_TO_ACTIONS.keys
-        end
-      
         def extract_request_format(request)
           request.format.html? ? :html : request.format.to_sym
         end
       
-        def renderable_formats_already_overridden?
-          @renderable_formats_overridden
-        end
-        
         def default_responds
           returning({}) do |responses|
             DEFAULT_FORMATS.each do |format|
-              responses[format] = CRUD_METHODS_TO_ACTIONS.keys.dup
+              responses[format] = CRUD_METHODS_TO_ACTIONS.values.sum([])
             end
           end
         end
