@@ -124,8 +124,12 @@ module ResourceFull
         end
     end
 
-    [:index, :count, :show, :new, :create, :edit, :update, :destroy].each do |name|
+    [:index, :count, :show, :new, :create, :update, :destroy].each do |name|
       define_method(name) { dispatch_to name }
+    end
+
+    def edit
+      self.model_object = send("find_#{model_name}")
     end
 
     protected
@@ -188,7 +192,9 @@ module ResourceFull
         # TODO: Should we need to loop here? Cant we just select one and invoke that one alone?
         self.class.allowed_formats.each do |renderable_format|
           # puts "renderable_format: #{renderable_format.inspect}"
-          requested_format.send(renderable_format) { send("#{method}_#{renderable_format}") }
+          requested_format.send(renderable_format) do
+            send("#{method}_#{renderable_format}")
+          end
         end
       end
     end
