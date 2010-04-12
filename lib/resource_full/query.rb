@@ -238,6 +238,8 @@ module ResourceFull
         if natural_sort_for(sort_params)
           # to use this natural sort you must follow these instructions: http://www.ciarpame.com/2008/06/28/true-mysql-natural-order-by-trick/
           finder.scoped order_params.merge( :order => "natsort_canon(#{table}.#{column}, 'natural') #{order_direction}" )
+        elsif(sort_params[:alias])
+          finder.scoped order_params.merge( :order => "#{sort_params[:alias]} #{order_direction}" )
         else
           finder.scoped order_params.merge( :order => "#{table}.#{column} #{order_direction}" )
         end

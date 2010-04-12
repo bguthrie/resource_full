@@ -2,7 +2,7 @@
 # from the project root directory.
 ENV["RAILS_ENV"] = "test"
 
-require File.expand_path(File.dirname(__FILE__) + '/../../../../config/environment')  
+require File.expand_path(File.dirname(__FILE__) + '/../../../../config/environment')
 require 'spec'
 require 'spec/rails'
 require 'resource_full/core_extensions/from_json'
@@ -15,7 +15,7 @@ Spec::Runner.configure do |config|
   config.use_instantiated_fixtures  = false
   config.fixture_path = RAILS_ROOT + '/vendor/plugins/resource_full/spec/fixtures/'
   config.mock_with :mocha
-  
+
   config.before(:all) do
     ActiveRecord::Base.connection.create_table "resource_full_mock_addresses", :force => true do |t|
       t.string   "street"
@@ -37,13 +37,13 @@ Spec::Runner.configure do |config|
       t.string   "type"
       t.timestamps
     end
-    
+
     ActiveRecord::Base.connection.create_table "resource_full_mock_employers", :force => true do |t|
       t.string "name"
       t.string "email"
       t.timestamps
     end
-    
+
     ActiveRecord::Base.connection.create_table "resource_full_namespaced_mock_records", :force => true do |t|
       t.string "name"
       t.timestamps
@@ -113,9 +113,9 @@ class ResourceFullNamespacedMockRecordWithXmlOverridesController < ResourceFull:
   def new_xml_options;    {:root => 'my_new_root'};    end
 end
 
-ActionController::Routing.use_controllers! %w{ 
-  resource_full_mock_users 
-  resource_full_mock_addresses 
+ActionController::Routing.use_controllers! %w{
+  resource_full_mock_users
+  resource_full_mock_addresses
   resource_full_mocks
   resource_full_sub_mocks
   resource_full/controllers/routes
