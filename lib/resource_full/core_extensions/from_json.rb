@@ -9,7 +9,5 @@ module ResourceFull
 end
 
 class Hash
-  class << self
-    include ResourceFull::CoreExtensions::Hash
-  end
+  extend ResourceFull::CoreExtensions::Hash
 end

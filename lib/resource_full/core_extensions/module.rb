@@ -8,4 +8,6 @@ module ResourceFull
   end
 end
 
-Module.send(:include, ResourceFull::CoreExtensions::Module)
+class Module
+  include ResourceFull::CoreExtensions::Module
+end

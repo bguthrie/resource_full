@@ -2,7 +2,7 @@ module ResourceFull
   class ResourceNotFound < Exception; end
   
   class Base < ActionController::Base
-    unless Rails.version == "2.3.2"
+    if ActionPack::VERSION::STRING < "2.3.0"
       session :off, :if => lambda { |request| request.format.xml? || request.format.json? }
     end
 
