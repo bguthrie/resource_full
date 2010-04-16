@@ -6,7 +6,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
   class SomeNonsenseException < Exception; end
 
   before :each do
-    controller.use_rails_error_handling!
+    rescue_action_in_public!
     ResourceFullMockUser.delete_all
     ResourceFullMockUsersController.resource_identifier = :id
   end
@@ -85,7 +85,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
 
       response.code.should == '404'
       hash = Hash.from_json(response.body)
-      hash["error"]["text"].should == "not found: 1"
+      hash["error"]["text"].should == "Couldn't find ResourceFullMockUser with id=1"
     end
 
     it "renders appropriate errors if a generic exception occurs" do
@@ -175,7 +175,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
 
       response.code.should == '404'
       hash = Hash.from_json(response.body)
-      hash["error"]["text"].should == "not found: 1"
+      hash["error"]["text"].should == "Couldn't find ResourceFullMockUser with id=1"
     end
 
     it "renders appropriate errors if a model validation fails" do
@@ -214,12 +214,12 @@ describe "ResourceFull::Render::JSON", :type => :controller do
   end
 
   describe "destroy" do
-    xit "renders appropriate errors if a model could not be found" do
+    it "renders appropriate errors if a model could not be found" do
       delete :destroy, :id => 1, :format => 'json'
 
       response.code.should == '404'
       hash = Hash.from_json(response.body)
-      hash["error"]["text"].should == "not found: 1"
+      hash["error"]["text"].should == "Couldn't find ResourceFullMockUser with id=1"
     end
 
     it "renders appropriate errors if a generic exception is raised" do
@@ -239,6 +239,8 @@ describe "ResourceFull::Render::JSON", :type => :controller do
         ResourceFullMockUser.send :remove_method, :destroy
       end
     end
+
+    it "renders error if the model could not be destroyed"
   end
 
   if ([Rails::VERSION::MAJOR, Rails::VERSION::MINOR] <=> [2,1]) >= 0 # if the rails version is 2.1 or greater...

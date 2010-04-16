@@ -127,49 +127,10 @@ module ResourceFull
         end
     end
     
-    def show
-      dispatch_to :show
+    [:index, :count, :show, :new, :create, :edit, :update, :destroy].each do |name|
+      define_method(name) { dispatch_to name }
     end
-    
-    def index
-      dispatch_to :index
-    end
-    
-    def create
-      dispatch_to :create
-    end
-    
-    def update
-      dispatch_to :update
-    end
-    
-    def destroy
-      dispatch_to :destroy
-    end
-    
-    def new
-      dispatch_to :new
-    end
-    
-    # Renders the number of objects in the database, in the following form:
-    #
-    #   <count type="integer">34</count>
-    #
-    # This accepts the same queryable parameters as the index method.
-    #
-    # N.B. This may be highly specific to my previous experience and may go away
-    # in previous releases.
-    def count
-      xml = Builder::XmlMarkup.new :indent => 2
-      xml.instruct!
-      render :xml => xml.count(send("count_all_#{model_name.pluralize}"))
-      xml = nil
-    end
-    
-    def edit
-      self.model_object = send("find_#{model_name}")
-    end
-    
+
     protected
     
     def model_object=(object)

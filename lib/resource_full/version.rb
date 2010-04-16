@@ -1,4 +1,4 @@
-module Actionresource #:nodoc:
+module ResourceFull #:nodoc:
   module VERSION #:nodoc:
     MAJOR = 0
     MINOR = 7

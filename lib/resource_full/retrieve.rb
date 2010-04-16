@@ -13,8 +13,8 @@ module ResourceFull
     def find_model_object
       # TODO I am not sure what the correct behavior should be here, but I'm artifically
       # generating the exception in order to avoid altering the render methods for the time being.
-      returning(model_class.find(:first, :conditions => { resource_identifier => params[:id]})) do |o|
-        raise ActiveRecord::RecordNotFound, "not found: #{params[:id]}" if o.nil?
+      returning(model_class.find(:first, :conditions => { resource_identifier => params[:id] })) do |o|
+        raise ActiveRecord::RecordNotFound, "Couldn't find #{model_class} with #{resource_identifier}=#{params[:id]}" if o.nil?
       end
     end
 
@@ -22,10 +22,26 @@ module ResourceFull
       model_class.new
     end
 
-    def update_model_object
-      returning(find_model_object) do |object|
-        object.update_attributes params[model_name]
+    def edit_model_object
+      find_model_object
+    end
+
+    # Decorate the method with this - so that even if the user has overridden this method, it will get decorated within a transaction!
+    [:create, :update, :destroy].each do |action|
+      send(:define_method, "transactional_#{action}_model_object") do
+        result = nil
+        ActiveRecord::Base.transaction do
+          result = send("#{action}_#{model_name}")
+          raise ActiveRecord::Rollback unless result.errors.empty?
+        end
+        result
       end
+    end
+
+    def update_model_object
+      object = find_model_object
+      object.update_attributes(params[model_name])
+      object
     end
 
     def create_model_object
@@ -33,7 +49,9 @@ module ResourceFull
     end
 
     def destroy_model_object
-      model_class.destroy_all(resource_identifier => params[:id])
+      object = find_model_object
+      object.destroy
+      object
     end
 
     def find_all_model_objects

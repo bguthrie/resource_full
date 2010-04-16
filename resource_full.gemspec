@@ -15,5 +15,7 @@ Gem::Specification.new do |s|
   
   s.add_dependency 'action_controller', '>= 2.1.0'
   s.add_dependency 'active_record', '>= 2.1.0'
+  
   s.add_development_dependency 'rspec'
+  s.add_development_dependency 'mocha'
 end

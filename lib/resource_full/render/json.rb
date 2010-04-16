@@ -27,11 +27,23 @@ module ResourceFull
         render :json => model_objects.to_json(index_json_options)
       end
 
+      def count_json
+        count = send("count_all_#{model_name.pluralize}")
+        render :json => {"count" => count}.to_json
+      end
+
+      def new_json_options
+        {}
+      end
+      def new_json
+        render :json => send("new_#{model_name}").to_json(new_json_options)
+      end
+
       def create_json_options
         {}
       end
       def create_json
-        self.model_object = send("create_#{model_name}")
+        self.model_object = transactional_create_model_object
         if model_object.errors.empty?
           render :json => model_object.to_json(create_json_options), :status => :created, :location => send("#{model_name}_url", model_object.id)
         else
@@ -44,11 +56,18 @@ module ResourceFull
         handle_generic_error_in_json(e)
       end
 
+      def edit_json_options
+        {}
+      end
+      def edit_json
+        render :json => send("edit_#{model_name}").to_json(edit_json_options)
+      end
+
       def update_json_options
         {}
       end
       def update_json
-        self.model_object = send("update_#{model_name}")
+        self.model_object = transactional_update_model_object
         if model_object.errors.empty?
           render :json => model_object.to_json(update_json_options)
         else
@@ -64,19 +83,19 @@ module ResourceFull
       end
 
       def destroy_json
-        self.model_object = send("destroy_#{model_name}")
-        head :ok
+        self.model_object = transactional_destroy_model_object
+        if model_object.errors.empty?
+          head :ok
+        else
+          json_data = model_object.attributes
+          json_data[:errors] = {:list => model_object.errors,
+                               :full_messages => model_object.errors.full_messages}
+          render :json => {json_class_name(model_object) => json_data}.to_json, :status => :unprocessable_entity
+        end
       rescue ActiveRecord::RecordNotFound => e
         render :json => e.to_json, :status => :not_found
       rescue => e
         handle_generic_error_in_json(e)
-      end
-
-      def new_json_options
-        {}
-      end
-      def new_json
-        render :json => send("new_#{model_name}").to_json(new_json_options)
       end
 
       private

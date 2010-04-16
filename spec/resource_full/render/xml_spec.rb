@@ -141,7 +141,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
     class SomeNonsenseException < Exception; end
 
     before :each do
-      controller.use_rails_error_handling!
+      rescue_action_in_public!
       ResourceFullMockUser.delete_all
       ResourceFullMockUsersController.resource_identifier = :id
     end
@@ -222,7 +222,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
         get :show, :id => 1, :format => 'xml'
 
         response.code.should == '404'
-        response.body.should have_tag("errors") { with_tag("error", "not found: 1") }
+        response.body.should have_tag("errors") { with_tag("error", "Couldn't find ResourceFullMockUser with id=1") }
       end
 
       it "renders appropriate errors if a generic exception occurs" do
@@ -311,7 +311,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
         put :update, :id => 1, :format => 'xml'
 
         response.code.should == '404'
-        response.should have_tag("errors") { with_tag("error", "not found: 1")}
+        response.should have_tag("errors") { with_tag("error", "Couldn't find ResourceFullMockUser with id=1")}
       end
 
       it "renders appropriate errors if a model validation fails" do
@@ -348,11 +348,11 @@ describe "ResourceFull::Render::XML" , :type => :controller do
     end
 
     describe "destroy" do
-      xit "renders appropriate errors if a model could not be found" do
+      it "renders appropriate errors if a model could not be found" do
         delete :destroy, :id => 1, :format => 'xml'
 
         response.code.should == '404'
-        response.should have_tag("errors") { with_tag("error", "not found: 1")}
+        response.should have_tag("errors") { with_tag("error", "Couldn't find ResourceFullMockUser with id=1")}
       end
 
       it "renders appropriate errors if a generic exception is raised" do
@@ -371,6 +371,8 @@ describe "ResourceFull::Render::XML" , :type => :controller do
           ResourceFullMockUser.send :remove_method, :destroy
         end
       end
+
+      it "renders error if the model could not be destroyed"
     end
   end
 end

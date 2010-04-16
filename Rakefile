@@ -7,6 +7,7 @@ require 'rcov/rcovtask'
 task :default => :spec
 
 Spec::Rake::SpecTask.new do |t|
+  t.spec_opts = ['--options', 'spec/spec.opts']
 end
 
 require 'rcov/version'
