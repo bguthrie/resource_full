@@ -1,3 +1,4 @@
 .tmtags
 *.tmproj
 .idea
+*.gem
