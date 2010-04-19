@@ -93,13 +93,15 @@ module ResourceFull
         end
       rescue ActiveRecord::RecordNotFound => e
         render :xml => e.to_xml, :status => :not_found
+      rescue ActiveRecord::RecordInvalid => e
+        render :xml => e.to_xml, :status => :unprocessable_entity
       rescue => e
         handle_generic_error_in_xml(e)
       end
 
       private
       def handle_generic_error_in_xml(exception)
-        render :xml => exception, :status => :unprocessable_entity
+        render :xml => exception, :status => :internal_server_error
       end
     end
   end

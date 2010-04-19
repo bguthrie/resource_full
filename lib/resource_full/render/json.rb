@@ -12,7 +12,12 @@ module ResourceFull
       end
       def show_json
         self.model_object = send("find_#{model_name}")
-        render :json => model_object.to_json(show_json_options)
+        
+        json_representation = with_root_included_in_json do
+          model_object.to_json(show_json_options)
+        end
+        
+        render :json => json_representation
       rescue ActiveRecord::RecordNotFound => e
         render :json => e.to_json, :status => :not_found
       rescue => e
@@ -24,7 +29,12 @@ module ResourceFull
       end
       def index_json
         self.model_objects = send("find_all_#{model_name.pluralize}")
-        render :json => model_objects.to_json(index_json_options)
+        
+        json_representation = with_root_included_in_json do
+          model_objects.to_json(index_json_options)
+        end
+        
+        render :json => json_representation
       end
 
       def count_json
@@ -36,7 +46,11 @@ module ResourceFull
         {}
       end
       def new_json
-        render :json => send("new_#{model_name}").to_json(new_json_options)
+        json_representation = with_root_included_in_json do
+          send("new_#{model_name}").to_json(new_json_options)
+        end
+        
+        render :json => json_representation
       end
 
       def create_json_options
@@ -94,14 +108,25 @@ module ResourceFull
         end
       rescue ActiveRecord::RecordNotFound => e
         render :json => e.to_json, :status => :not_found
+      rescue ActiveRecord::RecordInvalid => e
+        render :json => e.to_json, :status => :unprocessable_entity
       rescue => e
         handle_generic_error_in_json(e)
       end
 
       private
-      def handle_generic_error_in_json(exception)
-        render :json => exception, :status => :unprocessable_entity
-      end
+      
+        def handle_generic_error_in_json(exception)
+          render :json => exception, :status => :internal_server_error
+        end
+      
+        def with_root_included_in_json
+          old_value = ActiveRecord::Base.include_root_in_json
+          ActiveRecord::Base.include_root_in_json = true
+          yield
+        ensure
+          ActiveRecord::Base.include_root_in_json = old_value
+        end
     end
   end
 end
