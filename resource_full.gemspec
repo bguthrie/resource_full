@@ -3,7 +3,7 @@ require 'rake'
 Gem::Specification.new do |s|
   s.name = 'resource_full'
   s.summary = 'A library for building controllers that correctly interact with ActiveResource.'
-  s.version = '0.7.7'
+  s.version = '0.7.8'
 
   s.author = 'Brian Guthrie'
   s.email = 'btguthrie@gmail.com'
