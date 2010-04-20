@@ -4,7 +4,7 @@
 
 == DESCRIPTION
 
-ResourceFull integrated with ActionController to provide a comprehensive 
+ResourceFull integrates with ActionController to provide a comprehensive 
 RESTful resource modeling and querying framework.  It provides parameter 
 queryability, paging, sorting, separation of controller concerns, multiple 
 formats (HTML, XML, JSON), CRUD access permissions, and API metadata 
