@@ -25,7 +25,3 @@ require File.dirname(__FILE__) + '/resource_full/base'
 require File.dirname(__FILE__) + '/resource_full/models/resourced_route.rb'
 require File.dirname(__FILE__) + '/resource_full/controllers/resources_controller'
 require File.dirname(__FILE__) + '/resource_full/controllers/routes_controller'
-
-if ActiveRecord::VERSION::STRING >= '2.1.0' && !ActiveRecord::Base.include_root_in_json
-  puts "WARNING: Please set ActiveRecord::Base.include_root_in_json = true to enable ResourceFull's JSON support."
-end
