@@ -22,6 +22,6 @@ require File.dirname(__FILE__) + '/resource_full/version'
 require File.dirname(__FILE__) + '/resource_full/base'
 
 # REST API
-require File.dirname(__FILE__) + '/resource_full/models/resourced_route.rb'
+require File.dirname(__FILE__) + '/resource_full/models/resourced_route'
 require File.dirname(__FILE__) + '/resource_full/controllers/resources_controller'
 require File.dirname(__FILE__) + '/resource_full/controllers/routes_controller'
