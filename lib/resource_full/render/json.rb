@@ -64,7 +64,7 @@ module ResourceFull
           json_data = model_object.attributes
           json_data[:errors] = {:list => model_object.errors,
                                :full_messages => model_object.errors.full_messages}
-          render :json => {json_class_name(model_object) => json_data}.to_json, :status => status_for(model_object.errors)
+          render :json => {json_class_name(model_object) => json_data}.to_json, :status => http_error_code_for(model_object.errors)
         end
       rescue => e
         handle_generic_error_in_json(e)
@@ -88,7 +88,7 @@ module ResourceFull
           json_data = model_object.attributes
           json_data[:errors] = {:list => model_object.errors,
                                :full_messages => model_object.errors.full_messages}
-          render :json => {json_class_name(model_object) => json_data}.to_json, :status => status_for(model_object.errors)
+          render :json => {json_class_name(model_object) => json_data}.to_json, :status => http_error_code_for(model_object.errors)
         end
       rescue ActiveRecord::RecordNotFound => e
         render :json => e.to_json, :status => :not_found
