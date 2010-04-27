@@ -51,7 +51,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
       it "creates a new model object and places the location of the new object in the Location header" do
         put :create, :resource_full_namespaced_mock_record => {}, :format => 'xml'
 
-        response.headers['Location'].should == resource_full_namespaced_mock_record_url(ResourceFullSpec::ResourceFullNamespacedMockRecord.find(:first))
+        response.headers['Location'].should == resource_full_namespaced_mock_record_url(ResourceFullSpec::ResourceFullNamespacedMockRecord.find(:first), :format => :xml)
       end
     end    
 
@@ -118,7 +118,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
       it "creates a new model object and places the location of the new object in the Location header" do
         put :create, :resource_full_namespaced_mock_record => {}, :format => 'xml'
 
-        response.headers['Location'].should == resource_full_namespaced_mock_record_url(ResourceFullSpec::ResourceFullNamespacedMockRecord.find(:first))
+        response.headers['Location'].should == resource_full_namespaced_mock_record_url(ResourceFullSpec::ResourceFullNamespacedMockRecord.find(:first), :format => :xml)
       end
     end    
 
@@ -269,7 +269,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
       it "creates a new model object and places the location of the new object in the Location header" do
         put :create, :resource_full_mock_user => {}, :format => 'xml'
 
-        response.headers['Location'].should == resource_full_mock_user_url(ResourceFullMockUser.find(:first))
+        response.headers['Location'].should == resource_full_mock_user_url(ResourceFullMockUser.find(:first), :format => :xml)
       end
 
       it "renders appropriate errors if a model validation fails" do

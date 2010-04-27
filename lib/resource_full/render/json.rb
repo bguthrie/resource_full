@@ -59,7 +59,7 @@ module ResourceFull
       def create_json
         self.model_object = transactional_create_model_object
         if model_object.errors.empty?
-          render :json => model_object.to_json(create_json_options), :status => :created, :location => send("#{model_name}_url", model_object.id)
+          render :json => model_object.to_json(create_json_options), :status => :created, :location => send("#{model_name}_url", model_object.id, :format => :json)
         else
           json_data = model_object.attributes
           json_data[:errors] = {:list => model_object.errors,

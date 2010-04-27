@@ -158,7 +158,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
     it "creates a new model object and places the location of the new object in the Location header" do
       put :create, :resource_full_mock_user => {}, :format => 'json'
 
-      response.headers['Location'].should == resource_full_mock_user_url(ResourceFullMockUser.find(:first))
+      response.headers['Location'].should == resource_full_mock_user_url(ResourceFullMockUser.find(:first), :format => :json)
     end
 
     it "renders appropriate errors if a model validation fails" do

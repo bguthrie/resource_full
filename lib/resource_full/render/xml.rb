@@ -53,7 +53,7 @@ module ResourceFull
       def create_xml
         self.model_object = transactional_create_model_object
         if model_object.errors.empty?
-          render :xml => model_object.to_xml({:root => model_name}.merge(create_xml_options)), :status => :created, :location => send("#{model_name}_url", model_object.id)
+          render :xml => model_object.to_xml({:root => model_name}.merge(create_xml_options)), :status => :created, :location => send("#{model_name}_url", model_object.id, :format => :xml)
         else
           render :xml => model_object.errors.to_xml, :status => http_error_code_for(model_object.errors)
         end
