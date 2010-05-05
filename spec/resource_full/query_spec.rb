@@ -459,4 +459,56 @@ describe "ResourceFull::Query", :type => :controller do
     end
   end
   
+  describe "filter_with_scope" do
+    controller_name "resource_full_mock_users"
+    
+    # def self.filter_with_scope(scope)
+    #   queryable_with :__unused__, :default => true, :scope => scope
+    # end
+
+    it "should automatically apply the given named scope to the generated query" do
+      ResourceFullMockUsersController.filter_with_scope :rich
+      ResourceFullMockUser.named_scope :rich, :conditions => [ "income >= 50000" ]
+      
+      bob = ResourceFullMockUser.create! :income => 30000
+      alice = ResourceFullMockUser.create! :income => 50000
+      snoop_dogg = ResourceFullMockUser.create! :income => 1034831909138
+      
+      get :index
+      assigns(:resource_full_mock_users).should_not include(bob)
+      assigns(:resource_full_mock_users).should include(alice, snoop_dogg)
+    end
+    
+    it "should automatically apply the given hash scope to the generated query" do
+      ResourceFullMockUsersController.filter_with_scope :conditions => [ "income >= 50000" ]
+      
+      bob = ResourceFullMockUser.create! :income => 30000
+      alice = ResourceFullMockUser.create! :income => 50000
+      snoop_dogg = ResourceFullMockUser.create! :income => 1034831909138
+      
+      get :index
+      assigns(:resource_full_mock_users).should_not include(bob)
+      assigns(:resource_full_mock_users).should include(alice, snoop_dogg)
+    end
+    
+    it "should automatically apply the given block as the lambda for a scope" do
+      ResourceFullMockUsersController.filter_with_scope do
+        { :conditions => [ "birthdate > ?", 2.days.ago ] }
+      end
+      
+      bob = ResourceFullMockUser.create! :birthdate => 1.day.ago
+      alice = ResourceFullMockUser.create! :birthdate => 3.days.ago
+      snoop_dogg = ResourceFullMockUser.create! :birthdate => Date.parse("1971-10-20")
+      
+      get :index
+      assigns(:resource_full_mock_users).should include(bob)
+      assigns(:resource_full_mock_users).should_not include(alice, snoop_dogg)
+    end
+    
+    it "should raise an ArgumentError if neither an argument scope nor a block scope is provided" do
+      lambda do
+        ResourceFullMockUsersController.filter_with_scope
+      end.should raise_error(ArgumentError)
+    end
+  end
 end

@@ -286,6 +286,12 @@ module ResourceFull
         end
       end
       
+      def filter_with_scope(scope=nil, &block_scope)
+        raise ArgumentError, "must provide a scope name, standard scope definition, or block scope" unless (scope || block_scope)
+        # TODO These should not require the use of dummy parameter names.
+        queryable_with "__unused__", :default => true, :scope => scope || block_scope
+      end
+      
       # :nodoc:
       def clear_queryable_params!
         @queryable_params = []
