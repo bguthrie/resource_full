@@ -3,7 +3,7 @@ require 'rake'
 Gem::Specification.new do |s|
   s.name = 'resource_full'
   s.summary = 'A library for building controllers that correctly interact with ActiveResource.'
-  s.version = '0.7.8'
+  s.version = '0.7.9'
   s.description = <<-EOS
     ResourceFull provides a fully-compliant ActiveResource server implementation
     built on ActionController. Additionally, it provides RESTful parameter 
@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.author = 'Brian Guthrie'
   s.email = 'btguthrie@gmail.com'
   s.homepage = 'http://github.com/bguthrie/resource_full'
-  s.has_rdoc = false
+  s.has_rdoc = true
 
   s.files = FileList['lib/**/*.rb', '[A-Z]*', 'spec/**/*'].to_a
   s.test_files = FileList['spec/resource_full/**/*.rb']
