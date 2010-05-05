@@ -53,7 +53,6 @@ module ResourceFull
           ResourceFull::Query, 
           ResourceFull::Dispatch, 
           ResourceFull::Render
-        controller.send :alias_retrieval_methods!
         
         if ActionPack::VERSION::STRING < "2.3.0"
           controller.session :off, :if => lambda { |request| request.format.xml? || request.format.json? }
@@ -116,11 +115,9 @@ module ResourceFull
     # Indicates that the CRUD methods should be called on the given class.  Accepts
     # either a class object or the name of the desired model.
     def exposes(model_class)
-      remove_retrieval_methods!
       @model_class = model_class.to_s.singularize.camelize.constantize
-      alias_retrieval_methods!
     end
-        
+    
     # Renders the resource as XML.
     def to_xml(opts={})
       { :name       => self.controller_name,
@@ -135,27 +132,6 @@ module ResourceFull
         (self.resource_identifier.is_a?(Proc) ? self.resource_identifier.call(nil) : self.resource_identifier).to_s
       end
         
-    private
-        
-      def alias_retrieval_methods!
-        define_method("new_#{model_name}")                 { new_model_object }
-        define_method("find_#{model_name}")                { find_model_object }
-        define_method("create_#{model_name}")              { create_model_object }
-        define_method("update_#{model_name}")              { update_model_object }
-        define_method("destroy_#{model_name}")             { destroy_model_object }
-        define_method("find_all_#{model_name.pluralize}")  { find_all_model_objects }
-        define_method("count_all_#{model_name.pluralize}") { count_all_model_objects }
-      end
-      
-      def remove_retrieval_methods!
-        remove_method "new_#{model_name}" if method_defined? "new_#{model_name}"
-        remove_method "find_#{model_name}" if method_defined? "find_#{model_name}"
-        remove_method "create_#{model_name}" if method_defined? "create_#{model_name}"
-        remove_method "update_#{model_name}" if method_defined? "update_#{model_name}"
-        remove_method "destroy_#{model_name}" if method_defined? "destroy_#{model_name}"
-        remove_method "find_all_#{model_name.pluralize}" if method_defined? "find_all_#{model_name.pluralize}"
-        remove_method "count_all_#{model_name.pluralize}" if method_defined? "count_all_#{model_name.pluralize}"
-      end
   end
 end
 

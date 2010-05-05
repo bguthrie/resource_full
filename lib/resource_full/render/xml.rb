@@ -7,7 +7,7 @@ module ResourceFull
         {}
       end
       def show_xml
-        self.model_object = send("find_#{model_name}")
+        self.model_object = self.find_model_object
         render :xml => model_object.to_xml({:root => model_name}.merge(show_xml_options))
       rescue ActiveRecord::RecordNotFound => e
         render :xml => e.to_xml, :status => :not_found
@@ -19,7 +19,7 @@ module ResourceFull
         {}
       end
       def index_xml
-        self.model_objects = send("find_all_#{model_name.pluralize}")
+        self.model_objects = self.find_all_model_objects
         root_tag = model_objects.all? { |e| e.is_a?(model_objects.first.class) && model_objects.first.class.to_s != "Hash" } ? model_objects.first.class.name.demodulize.underscore.pluralize : model_name.pluralize
         render :xml => model_objects.to_xml({:root => root_tag}.merge(index_xml_options))
       end
@@ -35,7 +35,7 @@ module ResourceFull
       def count_xml
         xml = Builder::XmlMarkup.new :indent => 2
         xml.instruct!
-        render :xml => xml.count(send("count_all_#{model_name.pluralize}"))
+        render :xml => xml.count(self.count_all_model_objects)
       ensure
         xml = nil
       end
@@ -44,7 +44,7 @@ module ResourceFull
         {}
       end
       def new_xml
-        render :xml => send("new_#{model_name}").to_xml({:root => model_name}.merge(new_xml_options))
+        render :xml => self.new_model_object.to_xml({:root => model_name}.merge(new_xml_options))
       end
 
       def create_xml_options
@@ -65,7 +65,7 @@ module ResourceFull
         {}
       end
       def edit_xml
-        render :xml => send("edit_#{model_name}").to_xml({:root => model_name}.merge(edit_xml_options))
+        render :xml => self.edit_model_object.to_xml({:root => model_name}.merge(edit_xml_options))
       end
 
       def update_xml_options

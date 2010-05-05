@@ -9,23 +9,6 @@ describe "ResourceFull::Retrieve", :type => :controller do
     ResourceFullMockUsersController.queryable_params = []
   end
 
-  it "defines custom methods based on the class name" do
-    controller.should respond_to(
-      :find_resource_full_mock_user,
-      :find_all_resource_full_mock_users,
-      :update_resource_full_mock_user,
-      :destroy_resource_full_mock_user,
-      :new_resource_full_mock_user
-    )
-  end
-
-  it "changes the custom methods if the model name is changed" do
-    controller.class.exposes ResourceFullMock
-    controller.should respond_to(:find_resource_full_mock)
-    controller.should_not respond_to(:find_resource_full_mock_user)
-    controller.class.exposes ResourceFullMockUser # cleanup
-  end
-
   it "finds the requested model object" do
     user = ResourceFullMockUser.create!
     get :show, :id => user.id
