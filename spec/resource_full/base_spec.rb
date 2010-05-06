@@ -4,7 +4,7 @@ describe ResourceFull::Base, :type => :controller do
   controller_name "resource_full_mocks"
 
   before(:each) do
-    controller.class.instance_variable_set("@renderable_formats", nil)
+    controller.class.send(:write_inheritable_attribute, :renderable_formats, nil)
   end
 
   it "infers the name of its resource model from its class name" do
