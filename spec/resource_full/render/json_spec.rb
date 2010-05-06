@@ -6,7 +6,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
   class SomeNonsenseException < Exception; end
 
   before :each do
-    rescue_action_in_public!
+#    rescue_action_in_public!
     ResourceFullMockUser.delete_all
     ResourceFullMockUsersController.resource_identifier = :id
     ActiveRecord::Base.include_root_in_json = true
@@ -22,7 +22,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
       hash.size.should == 2
       response.code.should == '200'
     end
-    
+
     it "renders the model object with the json root included even if ActiveRecord isn't configured that way" do
       2.times { ResourceFullMockUser.create! }
       ActiveRecord::Base.include_root_in_json = false
@@ -97,7 +97,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
       hash = Hash.from_json(response.body)
       hash["error"]["text"].should == "Couldn't find ResourceFullMockUser with id=1"
     end
-    
+
     it "renders the model object with the json root included even if ActiveRecord isn't configured that way" do
       ActiveRecord::Base.include_root_in_json = false
       user = ResourceFullMockUser.create!
@@ -133,7 +133,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
 
       response.body.should == ResourceFullMockUser.new.to_json
     end
-    
+
     it "renders the model object with the json root included even if ActiveRecord isn't configured that way" do
       ActiveRecord::Base.include_root_in_json = false
       get :new, :format => 'json'
@@ -270,7 +270,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
     it "renders appropriate errors if a generic error is raised" do
       mock_user = ResourceFullMockUser.create!
       ResourceFullMockUser.any_instance.expects(:destroy).raises SomeNonsenseException, "sparrow farts"
-      
+
       delete :destroy, :id => mock_user.id.to_s, :format => 'json'
 
       response.code.should == '500'

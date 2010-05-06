@@ -200,7 +200,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
     it "should render the count" do
       ResourceFullMock.stubs(:count).returns(12)
       get :count, :format => 'html'
-      response.body.should == ["", []]
+      response.body.should == ""
     end
   end
 

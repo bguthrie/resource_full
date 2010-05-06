@@ -1,6 +1,5 @@
 require File.dirname(__FILE__) + '/../../spec_helper'
 
-
 describe "ResourceFull::Render::XML" , :type => :controller do
   describe ResourceFullNamespacedMockRecordsController do
     describe "index" do
@@ -14,6 +13,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
         response_hash.size.should == 2
       end
     end
+    
     describe "show" do
       it "renders the model object" do
         record = ResourceFullSpec::ResourceFullNamespacedMockRecord.create!
@@ -22,7 +22,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
 
         response.code.should == '200'
         response.body.should have_tag("resource-full-namespaced-mock-record")
-      end     
+      end
     end
     describe "new" do
       it "renders the XML for a new model object" do
@@ -53,7 +53,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
 
         response.headers['Location'].should == resource_full_namespaced_mock_record_url(ResourceFullSpec::ResourceFullNamespacedMockRecord.find(:first), :format => :xml)
       end
-    end    
+    end
 
     describe "update" do
       it "updates and renders the model object" do
@@ -89,7 +89,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
 
         response.code.should == '200'
         response.body.should have_tag("my-show-root")
-      end     
+      end
     end
     describe "new" do
       it "renders the XML for a new model object" do
@@ -120,7 +120,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
 
         response.headers['Location'].should == resource_full_namespaced_mock_record_url(ResourceFullSpec::ResourceFullNamespacedMockRecord.find(:first), :format => :xml)
       end
-    end    
+    end
 
     describe "update" do
       it "updates and renders the model object" do
@@ -141,7 +141,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
     class SomeNonsenseException < Exception; end
 
     before :each do
-      rescue_action_in_public!
+#      rescue_action_in_public!
       ResourceFullMockUser.delete_all
       ResourceFullMockUsersController.resource_identifier = :id
     end
@@ -371,7 +371,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
           ResourceFullMockUser.send :remove_method, :destroy
         end
       end
-      
+
       it "renders appropriate errors if a generic exception is raised" do
         mock_user = ResourceFullMockUser.create!
         ResourceFullMockUser.any_instance.expects(:destroy).raises SomeNonsenseException, "sparrow farts"
