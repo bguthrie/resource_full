@@ -50,7 +50,6 @@ module ResourceFull
           render :action => "edit"
         end
       rescue => e
-        raise e.inspect
         flash[:error] = e.message
         redirect_to :back
       end
