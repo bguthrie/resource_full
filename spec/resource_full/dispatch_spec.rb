@@ -13,7 +13,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
     controller_name "resource_full_mocks"
 
     before(:each) do
-      controller.class.instance_variable_set("@renderable_formats", nil)
+      controller.class.send(:write_inheritable_attribute, :renderable_formats, nil)
     end
 
     after :each do
@@ -58,7 +58,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
     controller_name "resource_full_mocks"
 
     before(:each) do
-      controller.class.instance_variable_set("@renderable_formats", nil)
+      controller.class.send(:write_inheritable_attribute, :renderable_formats, nil)
     end
 
     after :each do
@@ -124,7 +124,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
       controller_name "resource_full_mocks"
 
       before(:each) do
-        controller.class.instance_variable_set("@renderable_formats", nil)
+        controller.class.send(:write_inheritable_attribute, :renderable_formats, nil)
       end
 
       after :each do
@@ -152,7 +152,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
     controller_name "resource_full_mocks"
 
     before(:each) do
-      controller.class.instance_variable_set("@renderable_formats", nil)
+      controller.class.send(:write_inheritable_attribute, :renderable_formats, nil)
       controller.stubs(:render)
     end
 
@@ -181,7 +181,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
     controller_name "resource_full_mocks"
 
     before(:each) do
-      controller.class.instance_variable_set("@renderable_formats", nil)
+      controller.class.send(:write_inheritable_attribute, :renderable_formats, nil)
       controller.stubs(:render)
     end
 
@@ -196,7 +196,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
     controller_name "resource_full_mocks"
 
     before(:each) do
-      controller.class.instance_variable_set("@renderable_formats", nil)
+      controller.class.send(:write_inheritable_attribute, :renderable_formats, nil)
       controller.stubs(:render)
     end
 
@@ -219,7 +219,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
     controller_name "resource_full_mocks"
 
     before(:each) do
-      controller.class.instance_variable_set("@renderable_formats", nil)
+      controller.class.send(:write_inheritable_attribute, :renderable_formats, nil)
       controller.stubs :render
     end
 
@@ -243,7 +243,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
     controller_name "resource_full_mocks"
 
     before(:each) do
-      controller.class.instance_variable_set("@renderable_formats", nil)
+      controller.class.send(:write_inheritable_attribute, :renderable_formats, nil)
       controller.stubs :render
     end
 
@@ -267,7 +267,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
     before :each do
       request.env["HTTP_USER_AGENT"] = "MSIE 7.0"
       controller.stubs(:find_all_resource_full_mocks).returns([])
-      controller.class.instance_variable_set("@renderable_formats", nil)
+      controller.class.send(:write_inheritable_attribute, :renderable_formats, nil)
     end
 
     it "should set the request format to json when the incoming request format looks like json" do

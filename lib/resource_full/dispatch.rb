@@ -25,11 +25,10 @@ module ResourceFull
       # register_action :update, :format => [:xml]
       def register_action(*actions)
         opts = actions.extract_options!
-        @renderable_formats ||= default_responds
         formats = [opts[:format]].flatten
         formats.each do |format|
-          @renderable_formats[format] ||= []
-          @renderable_formats[format] += actions
+          renderable_formats[format] ||= []
+          renderable_formats[format] += actions
         end
       end
 
@@ -51,7 +50,7 @@ module ResourceFull
       # specifying responds_to :defaults.
       def responds_to(*formats)
         if formats.first == :defaults
-          @renderable_formats = default_responds
+          write_inheritable_attribute(:renderable_formats, default_responds)
           return
         end
 
@@ -64,11 +63,10 @@ module ResourceFull
         else
           CRUD_METHODS_TO_ACTIONS.keys
         end
-        @renderable_formats ||= {}
+        write_inheritable_attribute(:renderable_formats, {})
         formats.each do |format|
-          @renderable_formats[format] ||= []
-          @renderable_formats[format] += CRUD_METHODS_TO_ACTIONS.slice(*supported_crud_methods).values.flatten
-          @renderable_formats[format].uniq!
+          renderable_formats[format] ||= []
+          renderable_formats[format] |= CRUD_METHODS_TO_ACTIONS.slice(*supported_crud_methods).values.flatten
         end
       end
 
@@ -106,7 +104,7 @@ module ResourceFull
       protected
 
         def renderable_formats
-          @renderable_formats ||= default_responds
+          read_inheritable_attribute(:renderable_formats) || write_inheritable_hash(:renderable_formats, default_responds)
         end
 
       private
@@ -188,10 +186,8 @@ module ResourceFull
 
     def dispatch_to(method)
       respond_to do |requested_format|
-        # puts "requested_format: #{requested_format.inspect}"
         # TODO: Should we need to loop here? Cant we just select one and invoke that one alone?
         self.class.allowed_formats.each do |renderable_format|
-          # puts "renderable_format: #{renderable_format.inspect}"
           requested_format.send(renderable_format) do
             send("#{method}_#{renderable_format}")
           end
