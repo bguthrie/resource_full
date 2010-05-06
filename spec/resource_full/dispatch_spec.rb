@@ -118,6 +118,19 @@ describe "ResourceFull::Dispatch", :type => :controller do
       response.code.should == '200'
     end
 
+    it "allows responds_to to be invoked multiple times to build a comprehensive list" do
+      controller.class.responds_to :xml, :only => :read
+      controller.class.responds_to :csv, :only => :read
+
+      expecteds = [:index, :show, :count]
+      [:xml, :csv].each do |format|
+        actuals = controller.class.allowed_actions(format)
+        actuals.size.should == expecteds.size
+        (actuals - expecteds).should be_empty
+      end
+      controller.class.allowed_actions(:html).should be_empty
+    end
+
     it "allows you to specify the appropriate CRUD semantics of a custom method"
 
     describe "register_action" do

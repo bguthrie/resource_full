@@ -63,7 +63,7 @@ module ResourceFull
         else
           CRUD_METHODS_TO_ACTIONS.keys
         end
-        write_inheritable_attribute(:renderable_formats, {})
+        write_inheritable_hash(:renderable_formats, {})
         formats.each do |format|
           renderable_formats[format] ||= []
           renderable_formats[format] |= CRUD_METHODS_TO_ACTIONS.slice(*supported_crud_methods).values.flatten
