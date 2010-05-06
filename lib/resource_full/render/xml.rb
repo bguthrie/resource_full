@@ -53,9 +53,9 @@ module ResourceFull
       def create_xml
         self.model_object = transactional_create_model_object
         if model_object.errors.empty?
-          render :xml => model_object.to_xml({:root => model_name}.merge(create_xml_options)), :status => :created, :location => send("#{model_name}_url", model_object.id)
+          render :xml => model_object.to_xml({:root => model_name}.merge(create_xml_options)), :status => :created, :location => send("#{model_name}_url", model_object.id, :format => :xml)
         else
-          render :xml => model_object.errors.to_xml, :status => status_for(model_object.errors)
+          render :xml => model_object.errors.to_xml, :status => http_error_code_for(model_object.errors)
         end
       rescue => e
         handle_generic_error_in_xml(e)
@@ -76,7 +76,7 @@ module ResourceFull
         if model_object.errors.empty?
           render :xml => model_object.to_xml({:root => model_name}.merge(update_xml_options))
         else
-          render :xml => model_object.errors.to_xml, :status => status_for(model_object.errors)
+          render :xml => model_object.errors.to_xml, :status => http_error_code_for(model_object.errors)
         end
       rescue ActiveRecord::RecordNotFound => e
         render :xml => e.to_xml, :status => :not_found
@@ -93,13 +93,16 @@ module ResourceFull
         end
       rescue ActiveRecord::RecordNotFound => e
         render :xml => e.to_xml, :status => :not_found
+      rescue ActiveRecord::RecordInvalid => e
+        render :xml => e.to_xml, :status => :unprocessable_entity
       rescue => e
         handle_generic_error_in_xml(e)
       end
 
       private
       def handle_generic_error_in_xml(exception)
-        render :xml => exception, :status => :unprocessable_entity
+        logger.error exception
+        render :xml => exception, :status => :internal_server_error
       end
     end
   end

@@ -97,7 +97,6 @@ describe "ResourceFull::Dispatch", :type => :controller do
 
     it "responds successfully to supported actions" do
       controller.class.responds_to :xml, :only => :read
-      controller.stubs(:index)
       get :index, :format => "xml"
       response.should be_success
     end
@@ -201,7 +200,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
     it "should render the count" do
       ResourceFullMock.stubs(:count).returns(12)
       get :count, :format => 'html'
-      response.body.should == ""
+      response.body.should == ["", []]
     end
   end
 

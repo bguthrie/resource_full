@@ -6,9 +6,10 @@ describe "ResourceFull::Render::JSON", :type => :controller do
   class SomeNonsenseException < Exception; end
 
   before :each do
-    controller.use_rails_error_handling!
+    rescue_action_in_public!
     ResourceFullMockUser.delete_all
     ResourceFullMockUsersController.resource_identifier = :id
+    ActiveRecord::Base.include_root_in_json = true
   end
 
   describe "index" do
@@ -20,6 +21,15 @@ describe "ResourceFull::Render::JSON", :type => :controller do
       hash = Hash.from_json(response.body)
       hash.size.should == 2
       response.code.should == '200'
+    end
+    
+    it "renders the model object with the json root included even if ActiveRecord isn't configured that way" do
+      2.times { ResourceFullMockUser.create! }
+      ActiveRecord::Base.include_root_in_json = false
+
+      get :index, :format => 'json'
+      hash = Hash.from_json(response.body)
+      hash.first.should have_key("resource_full_mock_user")
     end
 
     it "rescues all unhandled exceptions with an JSON response" do
@@ -87,6 +97,17 @@ describe "ResourceFull::Render::JSON", :type => :controller do
       hash = Hash.from_json(response.body)
       hash["error"]["text"].should == "Couldn't find ResourceFullMockUser with id=1"
     end
+    
+    it "renders the model object with the json root included even if ActiveRecord isn't configured that way" do
+      ActiveRecord::Base.include_root_in_json = false
+      user = ResourceFullMockUser.create!
+
+      get :show, :id => user.id, :format => 'json'
+      response.code.should == '200'
+      hash = Hash.from_json(response.body)
+      hash.should have_key("resource_full_mock_user")
+      ActiveRecord::Base.include_root_in_json.should be_false
+    end
 
     it "renders appropriate errors if a generic exception occurs" do
       mock_user = ResourceFullMockUser.create!
@@ -112,6 +133,12 @@ describe "ResourceFull::Render::JSON", :type => :controller do
 
       response.body.should == ResourceFullMockUser.new.to_json
     end
+    
+    it "renders the model object with the json root included even if ActiveRecord isn't configured that way" do
+      ActiveRecord::Base.include_root_in_json = false
+      get :new, :format => 'json'
+      Hash.from_json(response.body).should have_key("resource_full_mock_user")
+    end
   end
 
   describe "create" do
@@ -131,7 +158,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
     it "creates a new model object and places the location of the new object in the Location header" do
       put :create, :resource_full_mock_user => {}, :format => 'json'
 
-      response.headers['Location'].should == resource_full_mock_user_url(ResourceFullMockUser.find(:first))
+      response.headers['Location'].should == resource_full_mock_user_url(ResourceFullMockUser.find(:first), :format => :json)
     end
 
     it "renders appropriate errors if a model validation fails" do
@@ -222,7 +249,7 @@ describe "ResourceFull::Render::JSON", :type => :controller do
       hash["error"]["text"].should == "Couldn't find ResourceFullMockUser with id=1"
     end
 
-    it "renders appropriate errors if a generic exception is raised" do
+    it "renders appropriate errors if RecordInvalid is raised" do
       mock_user = ResourceFullMockUser.create!
       ResourceFullMockUser.send :define_method, :destroy do
         errors.add_to_base("Cannot delete")
@@ -238,6 +265,17 @@ describe "ResourceFull::Render::JSON", :type => :controller do
       ensure
         ResourceFullMockUser.send :remove_method, :destroy
       end
+    end
+
+    it "renders appropriate errors if a generic error is raised" do
+      mock_user = ResourceFullMockUser.create!
+      ResourceFullMockUser.any_instance.expects(:destroy).raises SomeNonsenseException, "sparrow farts"
+      
+      delete :destroy, :id => mock_user.id.to_s, :format => 'json'
+
+      response.code.should == '500'
+      hash = Hash.from_json(response.body)
+      hash["error"]["text"].should == "sparrow farts"
     end
 
     it "renders error if the model could not be destroyed"

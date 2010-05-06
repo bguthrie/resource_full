@@ -255,15 +255,18 @@ module ResourceFull
       # Indicates that the resource should be queryable with the given parameters, which will be pulled from
       # the params hash on an index or count call.  Accepts the following options:
       # 
+      #   * :scope => (scope) : Use a scope. The value of this parameter may be a symbol (named scope), lambda, or hash.
+      #     Most other parameter options build scopes internally.
       #   * :fuzzy => true : Use a LIKE query instead of =.
       #   * :columns / :column => ... : Override the default column, or provide a list of columns to query for this value.
       #   * :from => :join_name : Indicate that this value should be queried by joining on another model.  Should use
       #     a valid relationship from this controller's exposed model (e.g., :account if belongs_to :account is specified.)
       #   * :resource_identifier => true : Try to look up the resource controller for this value and honor its
       #     specified resource identifier.  Useful for nesting relationships.
-      #   * :allow_nils => true : Indicates that a nil value for a parameter should be taken to literally indicate
+      #   * :allow_nil => true : Indicates that a nil value for a parameter should be taken to literally indicate
       #     that null values should be returned.  This may be changed in the future to expect the literal string 'null'
       #     or some other reasonable standin.
+      #   * :default => (value) : Default to this value if the parameter is not physically present in the request.
       #
       # Examples:
       #
@@ -283,6 +286,12 @@ module ResourceFull
             ResourceFull::Query::CustomParameter.new(param, self, opts)
           end
         end
+      end
+      
+      def filter_with_scope(scope=nil, &block_scope)
+        raise ArgumentError, "must provide a scope name, standard scope definition, or block scope" unless (scope || block_scope)
+        # TODO These should not require the use of dummy parameter names.
+        queryable_with "__unused__", :default => true, :scope => scope || block_scope
       end
       
       # :nodoc:

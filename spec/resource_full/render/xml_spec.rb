@@ -51,7 +51,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
       it "creates a new model object and places the location of the new object in the Location header" do
         put :create, :resource_full_namespaced_mock_record => {}, :format => 'xml'
 
-        response.headers['Location'].should == resource_full_namespaced_mock_record_url(ResourceFullSpec::ResourceFullNamespacedMockRecord.find(:first))
+        response.headers['Location'].should == resource_full_namespaced_mock_record_url(ResourceFullSpec::ResourceFullNamespacedMockRecord.find(:first), :format => :xml)
       end
     end    
 
@@ -118,7 +118,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
       it "creates a new model object and places the location of the new object in the Location header" do
         put :create, :resource_full_namespaced_mock_record => {}, :format => 'xml'
 
-        response.headers['Location'].should == resource_full_namespaced_mock_record_url(ResourceFullSpec::ResourceFullNamespacedMockRecord.find(:first))
+        response.headers['Location'].should == resource_full_namespaced_mock_record_url(ResourceFullSpec::ResourceFullNamespacedMockRecord.find(:first), :format => :xml)
       end
     end    
 
@@ -141,7 +141,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
     class SomeNonsenseException < Exception; end
 
     before :each do
-      controller.use_rails_error_handling!
+      rescue_action_in_public!
       ResourceFullMockUser.delete_all
       ResourceFullMockUsersController.resource_identifier = :id
     end
@@ -269,7 +269,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
       it "creates a new model object and places the location of the new object in the Location header" do
         put :create, :resource_full_mock_user => {}, :format => 'xml'
 
-        response.headers['Location'].should == resource_full_mock_user_url(ResourceFullMockUser.find(:first))
+        response.headers['Location'].should == resource_full_mock_user_url(ResourceFullMockUser.find(:first), :format => :xml)
       end
 
       it "renders appropriate errors if a model validation fails" do
@@ -355,7 +355,7 @@ describe "ResourceFull::Render::XML" , :type => :controller do
         response.should have_tag("errors") { with_tag("error", "Couldn't find ResourceFullMockUser with id=1")}
       end
 
-      it "renders appropriate errors if a generic exception is raised" do
+      it "renders appropriate errors if RecordInvalid exception is raised" do
         mock_user = ResourceFullMockUser.create!
         ResourceFullMockUser.send :define_method, :destroy do
           errors.add_to_base("Cannot delete")
@@ -370,6 +370,15 @@ describe "ResourceFull::Render::XML" , :type => :controller do
         ensure
           ResourceFullMockUser.send :remove_method, :destroy
         end
+      end
+      
+      it "renders appropriate errors if a generic exception is raised" do
+        mock_user = ResourceFullMockUser.create!
+        ResourceFullMockUser.any_instance.expects(:destroy).raises SomeNonsenseException, "sparrow farts"
+        delete :destroy, :id => mock_user.id.to_s, :format => 'xml'
+
+        response.code.should == '500'
+        response.should have_tag("errors") { with_tag("error", "sparrow farts") }
       end
 
       it "renders error if the model could not be destroyed"

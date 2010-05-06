@@ -5,7 +5,8 @@ ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + '/../../../../config/environment')
 require 'spec'
 require 'spec/rails'
-require 'resource_full/core_extensions/from_json'
+require 'mocha'
+# require File.dirname(__FILE__) + "/../lib/resource_full"
 
 Spec::Runner.configure do |config|
   # If you're not using ActiveRecord you should remove these
@@ -101,9 +102,11 @@ module ResourceFullSpec
   class ResourceFullNamespacedMockRecord < ActiveRecord::Base
   end
 end
+
 class ResourceFullNamespacedMockRecordsController < ResourceFull::Base
   exposes ResourceFullSpec::ResourceFullNamespacedMockRecord
 end
+
 class ResourceFullNamespacedMockRecordWithXmlOverridesController < ResourceFull::Base
   exposes ResourceFullSpec::ResourceFullNamespacedMockRecord
   def show_xml_options;   {:root => 'my_show_root'};   end

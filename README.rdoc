@@ -1,16 +1,14 @@
-= ResourceFull 0.7.5
+= ResourceFull
 
-* http://github.com/bguthrie/resource_full/
-
-== DESCRIPTION
-
-ResourceFull integrated with ActionController to provide a comprehensive 
-RESTful resource modeling and querying framework.  It provides parameter 
+ResourceFull provides a fully-compliant ActiveResource server implementation
+built on ActionController. Additionally, it provides RESTful parameter 
 queryability, paging, sorting, separation of controller concerns, multiple 
 formats (HTML, XML, JSON), CRUD access permissions, and API metadata 
 surrounding the resource itself. It's opinionated but is intended to provide 
 you with as much as possible without limiting your ability to customize its
-behavior.
+behavior. Unless overridden, it uses Rails' default to_xml and to_json methods 
+to provide object serialization, which ActiveResource expects but many REST 
+clients will not.
 
 == GOALS
 
@@ -78,7 +76,7 @@ add +map.api+ to your +routes.rb+ file.
 
 (The MIT License)
 
-Copyright (c) 2009 Brian Guthrie
+Copyright (c) 2010 Brian Guthrie
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
