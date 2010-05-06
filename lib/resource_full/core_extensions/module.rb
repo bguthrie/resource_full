@@ -2,7 +2,7 @@ module ResourceFull
   module CoreExtensions
     module Module
       def simple_name
-        name.split("::").last
+        name.demodulize
       end
     end
   end
