@@ -6,7 +6,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../../../../config/environme
 require 'spec'
 require 'spec/rails'
 require 'mocha'
-# require File.dirname(__FILE__) + "/../lib/resource_full"
+require File.dirname(__FILE__) + "/../lib/resource_full"
 
 Spec::Runner.configure do |config|
   # If you're not using ActiveRecord you should remove these
@@ -88,26 +88,36 @@ class ResourceFullMockAddress < ActiveRecord::Base
   belongs_to :resource_full_mock_user
 end
 
-class ResourceFullMocksController < ResourceFull::Base
+class ResourceFullMocksController < ActionController::Base
+  include ResourceFull
+  
   # dispatch_spec custom methods spec, approx. line 98
   def foo
     render :xml => { :foo => "bar" }.to_xml
   end
 end
 class ResourceFullSubMocksController < ResourceFullMocksController; end
-class ResourceFullMockUsersController < ResourceFull::Base;         end
-class ResourceFullMockAddressesController < ResourceFull::Base;     end
+
+class ResourceFullMockUsersController < ActionController::Base
+  include ResourceFull
+end
+
+class ResourceFullMockAddressesController < ActionController::Base
+  include ResourceFull
+end
 
 module ResourceFullSpec
   class ResourceFullNamespacedMockRecord < ActiveRecord::Base
   end
 end
 
-class ResourceFullNamespacedMockRecordsController < ResourceFull::Base
+class ResourceFullNamespacedMockRecordsController < ActionController::Base
+  include ResourceFull
   exposes ResourceFullSpec::ResourceFullNamespacedMockRecord
 end
 
-class ResourceFullNamespacedMockRecordWithXmlOverridesController < ResourceFull::Base
+class ResourceFullNamespacedMockRecordWithXmlOverridesController < ActionController::Base
+  include ResourceFull
   exposes ResourceFullSpec::ResourceFullNamespacedMockRecord
   def show_xml_options;   {:root => 'my_show_root'};   end
   def index_xml_options;  {:root => 'my_index_roots'}; end

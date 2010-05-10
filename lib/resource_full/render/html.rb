@@ -4,7 +4,7 @@ module ResourceFull
       protected
 
       def show_html
-        self.model_object = send("find_#{model_name}")
+        self.model_object = self.find_model_object
       rescue ActiveRecord::RecordNotFound => e
         flash[:error] = e.message
       rescue => e
@@ -13,15 +13,15 @@ module ResourceFull
       end
 
       def index_html
-        self.model_objects = send("find_all_#{model_name.pluralize}")
+        self.model_objects = self.find_all_model_objects
       end
 
       def count_html
-        send("count_all_#{model_name.pluralize}")
+        self.count_all_model_objects
       end
 
       def new_html
-        self.model_object = send("new_#{model_name}")
+        self.model_object = self.new_model_object
       end
 
       def create_html
@@ -38,7 +38,7 @@ module ResourceFull
       end
 
       def edit_html
-        self.model_object = send("edit_#{model_name}")
+        self.model_object = self.edit_model_object
       end
 
       def update_html

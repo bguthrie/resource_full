@@ -1,6 +1,7 @@
 module ResourceFull
   module Controllers
-    class ResourcesController < ResourceFull::Base
+    class ResourcesController < ActionController::Base
+      include ResourceFull
       responds_to :xml, :only => [ :read ]
       
       def index_xml
@@ -15,11 +16,11 @@ module ResourceFull
 
       protected
         def find_all_resources
-          ResourceFull::Base.all_resources
+          ResourceFull.all_resources
         end
 
         def find_resource
-          ResourceFull::Base.controller_for(params[:id])
+          ResourceFull.controller_for(params[:id])
         end
     end
   end

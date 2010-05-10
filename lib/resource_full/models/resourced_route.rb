@@ -54,7 +54,7 @@ module ResourceFull
         @name     = opts[:name]
         @pattern  = opts[:pattern]
         @action   = opts[:action]
-        @controller = ResourceFull::Base.controller_for(opts[:controller])
+        @controller = ResourceFull.controller_for(opts[:controller])
       end
 
       def to_xml(opts={})
@@ -76,7 +76,7 @@ module ResourceFull
       end
 
       def resourced?
-        controller.ancestors.include?(ResourceFull::Base)
+        controller.ancestors.include?(ResourceFull)
       end
 
     end

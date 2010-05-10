@@ -175,17 +175,9 @@ describe "ResourceFull::Dispatch", :type => :controller do
     end
 
     it "sets an @mocks instance variable appropriately if the default finder is overridden" do
-      begin
-        controller.class.class_eval do
-          def find_all_resource_full_mocks; "another list of mocks"; end
-        end
-        get :index, :format => 'html'
-        assigns(:resource_full_mocks).should == "another list of mocks"
-      ensure
-        controller.class.class_eval do
-          undef :find_all_resource_full_mocks
-        end
-      end
+      controller.stubs(:find_all_model_objects).returns "another list of mocks"
+      get :index, :format => 'html'
+      assigns(:resource_full_mocks).should == "another list of mocks"
     end
   end
 
@@ -219,9 +211,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
     end
 
     it "sets a @mock instance variable appropriately if the default finder is overridden" do
-      controller.class.class_eval do
-        def find_resource_full_mock; "another mock"; end
-      end
+      controller.stubs(:find_model_object).returns "another mock"
       get :show, :id => 1, :format => 'html'
       assigns(:resource_full_mock).should == "another mock"
     end
@@ -244,7 +234,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
     it "sets a @mock instance variable appropriately if the default creator is overridden" do
       ResourceFullMock.stubs(:super_create).returns stub(:errors => stub_everything, :id => :super_mock)
       controller.class.class_eval do
-        def create_resource_full_mock; ResourceFullMock.super_create; end
+        def create_model_object; ResourceFullMock.super_create; end
       end
       post :create, :format => 'html'
       assigns(:resource_full_mock).id.should == :super_mock
@@ -268,7 +258,7 @@ describe "ResourceFull::Dispatch", :type => :controller do
     it "sets a @mock instance variable appropriately if the default updater is overridden" do
       ResourceFullMock.stubs(:super_update).returns stub(:errors => stub_everything, :id => :super_mock)
       controller.class.class_eval do
-        def update_resource_full_mock; ResourceFullMock.super_update; end
+        def update_model_object; ResourceFullMock.super_update; end
       end
       put :update, :id => 1, :format => 'html'
       assigns(:resource_full_mock).id.should == :super_mock

@@ -1,6 +1,7 @@
 module ResourceFull
   module Controllers
-    class RoutesController < ResourceFull::Base
+    class RoutesController < ActionController::Base
+      include ResourceFull
       exposes ResourceFull::Models::ResourcedRoute
       responds_to :xml, :only => [ :read ]
       

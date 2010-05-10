@@ -11,7 +11,7 @@ module ResourceFull
         {}
       end
       def show_json
-        self.model_object = send("find_#{model_name}")
+        self.model_object = self.find_model_object
         
         json_representation = with_root_included_in_json do
           model_object.to_json(show_json_options)
@@ -28,7 +28,7 @@ module ResourceFull
         {}
       end
       def index_json
-        self.model_objects = send("find_all_#{model_name.pluralize}")
+        self.model_objects = self.find_all_model_objects
         
         json_representation = with_root_included_in_json do
           model_objects.to_json(index_json_options)
@@ -38,7 +38,7 @@ module ResourceFull
       end
 
       def count_json
-        count = send("count_all_#{model_name.pluralize}")
+        count = self.count_all_model_objects
         render :json => {"count" => count}.to_json
       end
 
@@ -47,7 +47,7 @@ module ResourceFull
       end
       def new_json
         json_representation = with_root_included_in_json do
-          send("new_#{model_name}").to_json(new_json_options)
+          self.new_model_object.to_json(new_json_options)
         end
         
         render :json => json_representation
@@ -74,7 +74,7 @@ module ResourceFull
         {}
       end
       def edit_json
-        render :json => send("edit_#{model_name}").to_json(edit_json_options)
+        render :json => self.edit_model_object.to_json(edit_json_options)
       end
 
       def update_json_options

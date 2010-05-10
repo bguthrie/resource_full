@@ -31,7 +31,7 @@ module ResourceFull
       send(:define_method, "transactional_#{action}_model_object") do
         result = nil
         ActiveRecord::Base.transaction do
-          result = send("#{action}_#{model_name}")
+          result = send("#{action}_model_object")
           raise ActiveRecord::Rollback unless result.errors.empty?
         end
         result

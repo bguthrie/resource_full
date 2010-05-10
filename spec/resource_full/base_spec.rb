@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-describe ResourceFull::Base, :type => :controller do
+describe ResourceFull, :type => :controller do
   controller_name "resource_full_mocks"
 
   before(:each) do
@@ -46,12 +46,13 @@ describe ResourceFull::Base, :type => :controller do
   end
 
   class NonResourcesController < ActionController::Base; end
-  class ResourcesController < ResourceFull::Base; end
+
+  class ResourcesController < ActionController::Base; include ResourceFull; end
 
   it "knows about all controller subclasses of itself" do
     ActionController::Routing.expects(:possible_controllers).at_least_once.returns %w{resources non_resources}
-    ResourceFull::Base.all_resources.should include(ResourcesController)
-    ResourceFull::Base.all_resources.should_not include(NonResourcesController)
+    ResourceFull.all_resources.should include(ResourcesController)
+    ResourceFull.all_resources.should_not include(NonResourcesController)
   end
 
   it "serializes the notion of a resource controller as XML" do
@@ -77,16 +78,16 @@ describe ResourceFull::Base, :type => :controller do
   end
 
   it "translates a model name into a controller constant" do
-    ResourceFull::Base.controller_for("resource_full_mock_users").should == ResourceFullMockUsersController
+    ResourceFull.controller_for("resource_full_mock_users").should == ResourceFullMockUsersController
   end
 
   it "raises ResourceNotFound if it cannot constantize the requested controller" do
     lambda do
-      ResourceFull::Base.controller_for("nonsense")
+      ResourceFull.controller_for("nonsense")
     end.should raise_error(ResourceFull::ResourceNotFound, "not found: nonsense")
   end
 
   it "returns the controller it's been given if it receives a Class object" do
-    ResourceFull::Base.controller_for(ResourceFullMockUsersController).should == ResourceFullMockUsersController
+    ResourceFull.controller_for(ResourceFullMockUsersController).should == ResourceFullMockUsersController
   end
 end
