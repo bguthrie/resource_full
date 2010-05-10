@@ -127,7 +127,7 @@ module ResourceFull
     end
 
     def edit
-      self.model_object = send("find_#{model_name}")
+      self.model_object = self.find_model_object
     end
 
     protected

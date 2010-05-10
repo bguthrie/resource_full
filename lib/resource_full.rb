@@ -19,7 +19,6 @@ require File.dirname(__FILE__) + '/resource_full/render/xml'
 require File.dirname(__FILE__) + '/resource_full/render'
 require File.dirname(__FILE__) + '/resource_full/retrieve'
 require File.dirname(__FILE__) + '/resource_full/version'
-require File.dirname(__FILE__) + '/resource_full/base'
 
 module ResourceFull
   class ResourceNotFound < Exception; end
@@ -60,7 +59,6 @@ module ResourceFull
         end
       end
   end
-
 
   module ClassMethods
     attr_accessor_with_default :paginatable, true
@@ -135,6 +133,9 @@ module ResourceFull
 
   end
 end
+
+# Deprecated class
+require File.dirname(__FILE__) + '/resource_full/base'
 
 # REST API
 require File.dirname(__FILE__) + '/resource_full/models/resourced_route'
